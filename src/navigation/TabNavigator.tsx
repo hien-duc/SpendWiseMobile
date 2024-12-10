@@ -2,6 +2,7 @@ import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import LinearGradient from 'react-native-linear-gradient';
 
 import HomeScreen from '../screens/HomeScreen';
 import ReportScreen from '../screens/ReportScreen';
@@ -19,9 +20,12 @@ const CustomTabBarButton = ({ children, onPress }) => (
         }}
         onPress={onPress}
     >
-        <View style={styles.plusButton}>
+        <LinearGradient
+            colors={['#00B152', '#00D154']}
+            style={styles.plusButton}
+        >
             {children}
-        </View>
+        </LinearGradient>
     </TouchableOpacity>
 );
 
@@ -29,21 +33,35 @@ const TabNavigator = () => {
     return (
         <Tab.Navigator
             screenOptions={{
-                tabBarShowLabel: true,
+                tabBarShowLabel: false,
                 tabBarStyle: {
                     position: 'absolute',
                     height: 60,
-                    backgroundColor: '#000000',
+                    backgroundColor: '#ffffff',
+                    borderTopWidth: 1,
+                    borderTopColor: '#f0f0f0',
+                    elevation: 0,
+                    shadowOpacity: 0,
                 },
-                tabBarActiveTintColor: '#6C5CE7',
-                tabBarInactiveTintColor: '#999999',
-                headerShown: false,
+                tabBarActiveTintColor: '#00B152',
+                tabBarInactiveTintColor: '#666666',
+                headerStyle: {
+                    backgroundColor: '#ffffff',
+                    elevation: 0,
+                    shadowOpacity: 0,
+                },
+                headerTitleStyle: {
+                    color: '#333333',
+                    fontSize: 20,
+                    fontWeight: '600',
+                },
             }}
         >
             <Tab.Screen
                 name="Home"
                 component={HomeScreen}
                 options={{
+                    headerTitle: 'SpendWise',
                     tabBarIcon: ({ color }) => (
                         <MaterialCommunityIcons name="home" color={color} size={26} />
                     ),
@@ -59,7 +77,7 @@ const TabNavigator = () => {
                 }}
             />
             <Tab.Screen
-                name="Add"
+                name="add"
                 component={View}
                 options={{
                     tabBarIcon: () => (
@@ -78,7 +96,7 @@ const TabNavigator = () => {
                 component={OtherScreen}
                 options={{
                     tabBarIcon: ({ color }) => (
-                        <MaterialCommunityIcons name="dots-horizontal" color={color} size={26} />
+                        <MaterialCommunityIcons name="view-grid" color={color} size={26} />
                     ),
                 }}
             />
@@ -99,12 +117,11 @@ const styles = StyleSheet.create({
     plusButton: {
         width: 60,
         height: 60,
-        backgroundColor: '#6C5CE7',
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
         elevation: 5,
-        shadowColor: '#6C5CE7',
+        shadowColor: '#00B152',
         shadowOffset: {
             width: 0,
             height: 2,

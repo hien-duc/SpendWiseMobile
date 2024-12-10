@@ -30,7 +30,7 @@ const LoginScreen = ({ navigation }: any) => {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      navigation.navigate('Main');
+      navigation.navigate('MainTabs');
     }
   };
 
@@ -100,7 +100,7 @@ const LoginScreen = ({ navigation }: any) => {
 
           <View style={styles.signUpContainer}>
             <Text style={styles.signUpText}>Don't have an account? </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => navigation.navigate('SignUp')}
               disabled={loading}
             >
