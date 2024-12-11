@@ -1,131 +1,90 @@
 const express = require('express');
 const router = express.Router();
-const { supabase } = require('../supabase');
-const { validateYearMonth, handleValidationErrors } = require('../middleware/validators');
+const pool = require('../db');
+const auth = require('../middleware/auth');
 
-/**
- * @swagger
- * /api/reports/monthly/{year}/{month}:
- *   get:
- *     summary: Get detailed monthly report with category breakdowns and totals
- *     tags: [Reports]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: year
- *         required: true
- *         schema:
- *           type: integer
- *       - in: path
- *         name: month
- *         required: true
- *         schema:
- *           type: integer
- *     responses:
- *       200:
- *         description: Monthly report with totals and category breakdowns
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 total_income:
- *                   type: number
- *                 total_expense:
- *                   type: number
- *                 total_investment:
- *                   type: number
- *                 net_balance:
- *                   type: number
- *                 category_name:
- *                   type: string
- *                 category_icon:
- *                   type: string
- *                 category_color:
- *                   type: string
- *                 category_type:
- *                   type: string
- *                 category_amount:
- *                   type: number
- *                 category_percentage:
- *                   type: number
- */
-router.get('/monthly/:year/:month', validateYearMonth, handleValidationErrors, async (req, res) => {
+// Get monthly report with category breakdown
+router.get('/monthly', auth, async (req, res) => {
     try {
-        const { data, error } = await supabase
-            .rpc('get_monthly_report_data', {
-                user_id_param: req.user.id,
-                year_param: parseInt(req.params.year),
-                month_param: parseInt(req.params.month)
-            });
-        if (error) throw error;
-        res.json(data);
+        const { month, year } = req.query;
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            'SELECT * FROM get_monthly_report_data($1, $2, $3)',
+            [userId, year, month]
+        );
+
+        // Transform the data to match the client's expected format
+        const reportData = result.rows;
+        
+        // Get the first row for totals (they're the same for all rows)
+        const totals = reportData.length > 0 ? {
+            totalIncome: reportData[0].total_income,
+            totalExpense: reportData[0].total_expense,
+            totalInvestment: reportData[0].total_investment,
+            netBalance: reportData[0].net_balance
+        } : {
+            totalIncome: 0,
+            totalExpense: 0,
+            totalInvestment: 0,
+            netBalance: 0
+        };
+
+        // Transform category breakdown data
+        const categoryBreakdown = reportData.map(row => ({
+            categoryName: row.category_name,
+            categoryIcon: row.category_icon,
+            categoryColor: row.category_color,
+            categoryType: row.category_type,
+            categoryAmount: row.category_amount,
+            categoryPercentage: row.category_percentage
+        }));
+
+        res.json({
+            success: true,
+            data: {
+                monthlyTotals: totals,
+                categoryBreakdown
+            }
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error in monthly report:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch monthly report data'
+        });
     }
 });
 
-/**
- * @swagger
- * /api/reports/category-trend/{year}/{categoryId}:
- *   get:
- *     summary: Get category trend data for a specific year
- *     tags: [Reports]
- *     security:
- *       - BearerAuth: []
- *     parameters:
- *       - in: path
- *         name: year
- *         required: true
- *         schema:
- *           type: integer
- *       - in: path
- *         name: categoryId
- *         required: true
- *         schema:
- *           type: string
- *           format: uuid
- *     responses:
- *       200:
- *         description: Monthly trend data for the specified category
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 month:
- *                   type: integer
- *                 month_name:
- *                   type: string
- *                 amount:
- *                   type: number
- *                 category_name:
- *                   type: string
- *                 category_icon:
- *                   type: string
- *                 category_color:
- *                   type: string
- *                 category_type:
- *                   type: string
- *                 date_label:
- *                   type: string
- *                 latest_transaction_date:
- *                   type: string
- *                   format: date
- */
-router.get('/category-trend/:year/:categoryId', async (req, res) => {
+// Get category trend data
+router.get('/category-trend', auth, async (req, res) => {
     try {
-        const { data, error } = await supabase
-            .rpc('get_category_trend_detail', {
-                user_id_param: req.user.id,
-                year_param: parseInt(req.params.year),
-                category_id_param: req.params.categoryId
-            });
-        if (error) throw error;
-        res.json(data);
+        const { category_id, start_date, end_date } = req.query;
+        const userId = req.user.id;
+
+        const result = await pool.query(
+            `SELECT 
+                date_trunc('day', date) as transaction_date,
+                SUM(amount) as daily_total
+            FROM transactions
+            WHERE user_id = $1
+            AND category_id = $2
+            AND date BETWEEN $3 AND $4
+            GROUP BY date_trunc('day', date)
+            ORDER BY transaction_date`,
+            [userId, category_id, start_date, end_date]
+        );
+
+        res.json({
+            success: true,
+            data: result.rows
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Error in category trend:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to fetch category trend data'
+        });
     }
 });
 

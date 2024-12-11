@@ -162,7 +162,7 @@ RETURNS TABLE (
     total_income DECIMAL(12,2),
     total_expense DECIMAL(12,2),
     total_investment DECIMAL(12,2),
-    net_balance DECIMAL(12,2),
+    total_net_balance DECIMAL(12,2),
     -- Category breakdown
     category_name TEXT,
     category_icon TEXT,
@@ -173,15 +173,15 @@ RETURNS TABLE (
 ) AS $$
 BEGIN
     RETURN QUERY
-    WITH monthly_totals AS (
+    WITH transaction_summary AS (
         SELECT
-            COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0.00) as income_total,
-            COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0.00) as expense_total,
-            COALESCE(SUM(CASE WHEN type = 'investment' THEN amount ELSE 0 END), 0.00) as investment_total,
+            COALESCE(SUM(CASE WHEN type = 'income' THEN amount ELSE 0 END), 0.00) as total_income,
+            COALESCE(SUM(CASE WHEN type = 'expense' THEN amount ELSE 0 END), 0.00) as total_expense,
+            COALESCE(SUM(CASE WHEN type = 'investment' THEN amount ELSE 0 END), 0.00) as total_investment,
             COALESCE(SUM(CASE 
                 WHEN type = 'income' THEN amount 
                 WHEN type IN ('expense', 'investment') THEN -amount 
-                ELSE 0 END), 0.00) as net_balance
+                ELSE 0 END), 0.00) as total_net_balance
         FROM transactions
         WHERE user_id = user_id_param
         AND EXTRACT(year FROM date) = year_param
@@ -194,7 +194,12 @@ BEGIN
             c.color,
             c.type,
             COALESCE(SUM(t.amount), 0.00) as amount,
-            SUM(SUM(COALESCE(t.amount, 0))) OVER (PARTITION BY c.type) as type_total
+            CASE 
+                WHEN SUM(SUM(COALESCE(t.amount, 0))) OVER (PARTITION BY c.type) = 0 
+                THEN 0.00 
+                ELSE (COALESCE(SUM(t.amount), 0.00) / 
+                      SUM(SUM(COALESCE(t.amount, 0))) OVER (PARTITION BY c.type)) * 100 
+            END as percentage
         FROM categories c
         LEFT JOIN transactions t ON 
             t.category_id = c.id 
@@ -202,26 +207,23 @@ BEGIN
             AND EXTRACT(year FROM t.date) = year_param
             AND EXTRACT(month FROM t.date) = month_param
         WHERE c.user_id = user_id_param
-        GROUP BY c.id, c.name, c.icon, c.color, c.type
+        GROUP BY c.name, c.icon, c.color, c.type
+        HAVING COALESCE(SUM(t.amount), 0.00) > 0
     )
     SELECT 
-        mt.income_total,
-        mt.expense_total,
-        mt.investment_total,
-        mt.net_balance,
+        ts.total_income,
+        ts.total_expense,
+        ts.total_investment,
+        ts.total_net_balance,
         ct.name,
         ct.icon,
         ct.color,
         ct.type,
         ct.amount,
-        CASE 
-            WHEN ct.type_total > 0 THEN ROUND((ct.amount / ct.type_total * 100)::numeric, 2)
-            ELSE 0.00
-        END as percentage
-    FROM monthly_totals mt
+        ct.percentage
+    FROM transaction_summary ts
     CROSS JOIN category_totals ct
-    WHERE ct.amount > 0  -- Only show categories with transactions
-    ORDER BY ct.type, ct.amount DESC;
+    ORDER BY ct.amount DESC
 END;
 $$ LANGUAGE plpgsql;
 
