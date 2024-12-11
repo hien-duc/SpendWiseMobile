@@ -12,29 +12,136 @@ import {
     Pressable,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import { api } from '../../services/api';
+import { transactionsService } from '../../api/transactionsService';
+import { categoriesService } from '../../api/categoriesService';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { supabase } from '../../../supabase';
 
-const TransactionInput = ({ visible, onClose }) => {
+const TransactionInput = ({ visible, onClose, type }) => {
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [date, setDate] = useState(new Date());
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [transactionType, setTransactionType] = useState('expense');
+    const [transactionType, setTransactionType] = useState(type || 'expense');
     const [showDatePicker, setShowDatePicker] = useState(false);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
-        loadCategories();
-    }, []);
+        const checkAuthentication = async () => {
+            try {
+                // Check Supabase session
+                const { data: { session } } = await supabase.auth.getSession();
+                
+                console.log('DEBUG: Supabase Session:', JSON.stringify(session, null, 2));
+
+                // Explicitly store the access token if session exists
+                if (session && session.access_token) {
+                    await AsyncStorage.setItem('token', session.access_token);
+                    console.log('DEBUG: Explicitly stored token from Supabase session');
+                }
+
+                // Additional check for token
+                const storedToken = await AsyncStorage.getItem('token');
+                console.log('DEBUG: Token from AsyncStorage:', storedToken);
+
+                // Determine authentication status
+                const isAuthenticated = !!session;
+                setIsAuthenticated(isAuthenticated);
+                
+                if (isAuthenticated && visible) {
+                    loadCategories();
+                } else {
+                    Alert.alert(
+                        'Authentication Required', 
+                        'Please log in to access transaction features',
+                        [{ 
+                            text: 'OK', 
+                            onPress: () => {
+                                onClose(); // Close the modal
+                                // Optionally navigate to login screen
+                            } 
+                        }]
+                    );
+                }
+            } catch (error) {
+                console.error('CRITICAL: Error checking authentication:', error);
+                Alert.alert(
+                    'Critical Error', 
+                    'Unable to check authentication status. Please restart the app.',
+                    [{ 
+                        text: 'OK', 
+                        onPress: () => console.log('Authentication check error dismissed') 
+                    }]
+                );
+            }
+        };
+
+        checkAuthentication();
+    }, [visible, transactionType]);
 
     const loadCategories = async () => {
         try {
-            const fetchedCategories = await api.getCategories();
+            // Debug: Check token before making request
+            const token = await AsyncStorage.getItem('token');
+            console.log('Current token:', token);
+
+            // Detailed logging for transaction type
+            console.log('Loading categories for transaction type:', transactionType);
+
+            // Validate transaction type
+            if (!transactionType) {
+                throw new Error('Transaction type is undefined');
+            }
+
+            const fetchedCategories = await categoriesService.getAll(transactionType);
+            
+            // More detailed logging
+            console.log('Fetched categories:', fetchedCategories);
+            console.log('Number of categories:', fetchedCategories ? fetchedCategories.length : 'N/A');
+
+            // Validate categories
+            if (!fetchedCategories || !Array.isArray(fetchedCategories) || fetchedCategories.length === 0) {
+                console.warn('Invalid or empty categories array for transaction type:', transactionType);
+                Alert.alert(
+                    'Warning', 
+                    `No categories found for ${transactionType} transactions`,
+                    [{ 
+                        text: 'OK', 
+                        onPress: () => console.log('Category load warning dismissed') 
+                    }]
+                );
+                // Set to an empty array to prevent undefined errors
+                setCategories([]);
+                return;
+            }
+
             setCategories(fetchedCategories);
         } catch (error) {
-            Alert.alert('Error', 'Failed to load categories');
+            console.error('Failed to load categories:', error);
+            
+            // More detailed error logging
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                console.error('Error status:', error.response.status);
+                console.error('Error headers:', error.response.headers);
+            }
+            
+            // Set to an empty array to prevent undefined errors
+            setCategories([]);
+            
+            Alert.alert(
+                'Error', 
+                `Failed to load categories: ${error.message || 'Unknown error'}. Transaction type: ${transactionType}`,
+                [
+                    { 
+                        text: 'OK', 
+                        onPress: () => console.log('Category load error alert dismissed') 
+                    }
+                ]
+            );
         }
     };
 
@@ -54,12 +161,34 @@ const TransactionInput = ({ visible, onClose }) => {
                 type: transactionType,
             };
 
-            await api.createTransaction(transactionData);
+            // Debug: Check token before making request
+            const token = await AsyncStorage.getItem('token');
+            console.log('Current token:', token);
+
+            await transactionsService.create(transactionData);
+            console.log('Transaction created successfully:', transactionData);
             Alert.alert('Success', 'Transaction created successfully');
             resetForm();
             onClose();
         } catch (error) {
-            Alert.alert('Error', 'Failed to create transaction');
+            console.error('Failed to create transaction:', error);
+            
+            // More detailed error logging
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                console.error('Error status:', error.response.status);
+            }
+            
+            Alert.alert(
+                'Error', 
+                `Failed to create transaction: ${error.message || 'Unknown error'}`,
+                [
+                    { 
+                        text: 'OK', 
+                        onPress: () => console.log('Transaction creation error alert dismissed') 
+                    }
+                ]
+            );
         } finally {
             setLoading(false);
         }
