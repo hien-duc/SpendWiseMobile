@@ -10,7 +10,9 @@ import {
     Alert,
     ActivityIndicator,
     Pressable,
+    Dimensions,
 } from 'react-native';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { transactionsService } from '../../api/transactionsService';
 import { categoriesService } from '../../api/categoriesService';
@@ -20,6 +22,29 @@ import { supabase } from '../../../supabase';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
+import { ColorPicker, fromHsv } from 'react-native-color-picker';
+
+const COLOR_PALETTE = [
+    // Vibrant Colors
+    '#FF6B6B', // Pastel Red
+    '#4ECDC4', // Turquoise
+    '#45B7D1', // Sky Blue
+    '#FDCB6E', // Sunflower Yellow
+    '#6C5CE7', // Purple
+    '#A8E6CF', // Mint Green
+    '#FF8ED4', // Pink
+    '#FAD390', // Peach
+    '#55E6C1', // Seafoam Green
+    '#5F27CD', // Deep Purple
+    '#48DBFB', // Bright Blue
+    '#FF6A5B', // Coral
+    '#1DD1A1', // Emerald Green
+    '#F368E0', // Bright Pink
+    '#2E86DE', // Strong Blue
+    '#2196F3', // Blue
+    '#4CAF50', // Green
+    '#FF5722', // Orange
+];
 
 const TransactionInput = ({
     visible,
@@ -41,12 +66,40 @@ const TransactionInput = ({
     const [showLocalCategoryModal, setShowLocalCategoryModal] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
     const [newCategoryIcon, setNewCategoryIcon] = useState('');
-    const [newCategoryColor, setNewCategoryColor] = useState('');
+    const [newCategoryColor, setNewCategoryColor] = useState('#4CAF50');
 
     const availableIcons = [
-        'label', 'fastfood', 'shopping_bag', 'directions_car', 'home',
-        'school', 'health_and_safety', 'sports', 'movie', 'flight',
-        'computer', 'pets', 'fitness_center', 'local_grocery_store'
+        // Income Sources
+        'work', 'attach-money', 'monetization-on', 'account-balance',
+        'business', 'savings',
+
+        // Expense Categories
+        'restaurant', 'local-grocery-store', 'local-gas-station',
+        'local-pharmacy', 'local-hospital', 'local-mall',
+        'local-cafe', 'local-bar', 'local-taxi',
+        'local-airport',
+
+        // Utilities and Bills
+        'power', 'water-drop', 'wifi', 'phone', 'computer',
+        'router', 'electrical-services',
+
+        // Personal Expenses
+        'local-laundry-service', 'fitness-center', 'spa',
+        'local-library', 'local-movies',
+
+        // Transportation
+        'directions-bus', 'directions-train', 'local-shipping',
+        'two-wheeler', 'local-car-wash',
+
+        // Education and Professional
+        'school', 'menu-book', 'science',
+        'local-post-office', 'card-membership',
+
+        // Health and Wellness
+        'medical-services', 'fitness-center',
+
+        // Miscellaneous
+        'card-giftcard', 'card-travel', 'local-offer'
     ];
 
     const availableColors = [
@@ -67,7 +120,7 @@ const TransactionInput = ({
         setShowLocalCategoryModal(false);
         setNewCategoryName('');
         setNewCategoryIcon('');
-        setNewCategoryColor('');
+        setNewCategoryColor('#4CAF50');
     }, [type]);
 
     useEffect(() => {
@@ -280,7 +333,7 @@ const TransactionInput = ({
             setShowLocalCategoryModal(false);
             setNewCategoryName('');
             setNewCategoryIcon('');
-            setNewCategoryColor('');
+            setNewCategoryColor('#4CAF50');
 
             // Optional: Select the newly created category
             setSelectedCategory(createdCategory);
@@ -318,7 +371,7 @@ const TransactionInput = ({
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Spend Wise</Text>
                     <TouchableOpacity onPress={handleModalClose}>
-                        <MaterialCommunityIcons name="close" size={24} color="#333" />
+                        <MaterialIcons name="close" size={24} color="#333" />
                     </TouchableOpacity>
                 </View>
 
@@ -360,7 +413,7 @@ const TransactionInput = ({
                                         ]}
                                         onPress={() => setSelectedCategory(category)}
                                     >
-                                        <MaterialCommunityIcons
+                                        <MaterialIcons
                                             name={category.icon}
                                             size={24}
                                             color={category.color}
@@ -413,7 +466,13 @@ const TransactionInput = ({
                     {/* Amount Input */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>{transactionType.charAt(0).toUpperCase() + transactionType.slice(1)}</Text>
-                        <View style={styles.amountContainer}>
+                        <View style={styles.amountInputWrapper}>
+                            <MaterialIcons 
+                                name="attach-money" 
+                                size={24} 
+                                color="#666" 
+                                style={styles.currencyIcon} 
+                            />
                             <TextInput
                                 style={styles.amountInput}
                                 value={amount}
@@ -422,7 +481,7 @@ const TransactionInput = ({
                                 placeholder="0"
                                 placeholderTextColor="#999"
                             />
-                            <Text style={styles.currency}>₩</Text>
+                            {/* <Text style={styles.currencyText}>$</Text> */}
                         </View>
                     </View>
                 </ScrollView>
@@ -488,7 +547,7 @@ const TransactionInput = ({
                                             ]}
                                             onPress={() => setNewCategoryIcon(icon)}
                                         >
-                                            <MaterialCommunityIcons
+                                            <MaterialIcons
                                                 name={icon}
                                                 size={24}
                                                 color="#666"
@@ -498,26 +557,35 @@ const TransactionInput = ({
                                 </View>
                             </View>
 
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>Color</Text>
-                                <View style={styles.categoriesGrid}>
-                                    {availableColors.map((color) => (
+                            <View style={styles.colorPickerContainer}>
+                                <Text style={styles.label}>Choose Category Color</Text>
+                                <View style={styles.colorPaletteContainer}>
+                                    {COLOR_PALETTE.map((color) => (
                                         <TouchableOpacity
                                             key={color}
                                             style={[
-                                                styles.categoryItem,
-                                                newCategoryColor === color && styles.selectedCategory
+                                                styles.colorSwatch,
+                                                {
+                                                    backgroundColor: color,
+                                                    borderWidth: newCategoryColor === color ? 3 : 0,
+                                                    borderColor: newCategoryColor === color ? '#000' : 'transparent'
+                                                }
                                             ]}
                                             onPress={() => setNewCategoryColor(color)}
-                                        >
-                                            <View
-                                                style={[
-                                                    styles.categoryItem,
-                                                    { backgroundColor: color, width: 24, height: 24 }
-                                                ]}
-                                            />
-                                        </TouchableOpacity>
+                                        />
                                     ))}
+                                </View>
+
+                                {/* Color Preview */}
+                                <View
+                                    style={[
+                                        styles.colorPreview,
+                                        { backgroundColor: newCategoryColor }
+                                    ]}
+                                >
+                                    <Text style={styles.colorPreviewText}>
+                                        Selected Color: {newCategoryColor}
+                                    </Text>
                                 </View>
                             </View>
                         </ScrollView>
@@ -547,6 +615,8 @@ TransactionInput.propTypes = {
     }),
     onAddCategory: PropTypes.func
 };
+
+const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
     container: {
@@ -619,23 +689,26 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#333',
     },
-    amountContainer: {
+    amountInputWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: '#FFF5F2',
-        borderRadius: 8,
-        padding: 12,
+        borderWidth: 1,
+        borderColor: '#ddd',
+        borderRadius: 10,
+        paddingHorizontal: 10,
+    },
+    currencyIcon: {
+        marginRight: 10,
     },
     amountInput: {
         flex: 1,
-        fontSize: 24,
-        color: '#333',
-        padding: 0,
+        height: 50,
+        fontSize: 18,
     },
-    currency: {
-        fontSize: 24,
-        color: '#333',
-        marginLeft: 8,
+    currencyText: {
+        fontSize: 18,
+        color: '#666',
+        marginLeft: 10,
     },
     categoriesGrid: {
         flexDirection: 'row',
@@ -679,6 +752,34 @@ const styles = StyleSheet.create({
         color: '#FFF',
         fontSize: 18,
         fontWeight: '600',
+    },
+    colorPickerContainer: {
+        alignItems: 'center',
+        paddingVertical: 20,
+        paddingHorizontal: 10,
+    },
+    colorPaletteContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'center',
+        marginBottom: 20,
+    },
+    colorSwatch: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        margin: 5,
+    },
+    colorPreview: {
+        width: '100%',
+        padding: 10,
+        borderRadius: 10,
+        alignItems: 'center',
+        marginTop: 10,
+    },
+    colorPreviewText: {
+        color: 'white',
+        fontWeight: 'bold',
     },
 });
 
