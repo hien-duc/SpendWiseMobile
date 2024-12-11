@@ -4,6 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
+import CategoryManagementScreen from '../screens/CategoryManagementScreen';
+import CreateCategoryScreen from '../screens/CreateCategoryScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -24,6 +26,17 @@ const AppNavigator = () => {
           options={{
             gestureEnabled: false,
           }}
+        />
+        <Stack.Screen 
+          name="CategoryManagement" 
+          component={CategoryManagementScreen}
+          options={{ headerShown: false }}
+          initialParams={{ initialType: undefined }}
+        />
+        <Stack.Screen 
+          name="CreateCategory" 
+          component={CreateCategoryScreen}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

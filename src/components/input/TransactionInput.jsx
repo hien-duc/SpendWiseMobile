@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     View,
     Text,
@@ -17,8 +17,17 @@ import { categoriesService } from '../../api/categoriesService';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../../../supabase';
+import PropTypes from 'prop-types';
+import { useAuth } from '../../context/AuthContext';
+import { useAuthGuard } from '../../hooks/useAuthGuard';
 
-const TransactionInput = ({ visible, onClose, type }) => {
+const TransactionInput = ({
+    visible,
+    onClose,
+    type,
+    navigation = {},
+    onAddCategory
+}) => {
     const [amount, setAmount] = useState('');
     const [note, setNote] = useState('');
     const [selectedCategory, setSelectedCategory] = useState(null);
@@ -28,92 +37,54 @@ const TransactionInput = ({ visible, onClose, type }) => {
     const [transactionType, setTransactionType] = useState(type || 'expense');
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [isAuthAlertShown, setIsAuthAlertShown] = useState(false);
+    const [showLocalCategoryModal, setShowLocalCategoryModal] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState('');
+    const [newCategoryIcon, setNewCategoryIcon] = useState('');
+    const [newCategoryColor, setNewCategoryColor] = useState('');
+
+    const availableIcons = [
+        'label', 'fastfood', 'shopping_bag', 'directions_car', 'home',
+        'school', 'health_and_safety', 'sports', 'movie', 'flight',
+        'computer', 'pets', 'fitness_center', 'local_grocery_store'
+    ];
+
+    const availableColors = [
+        '#4CAF50', '#2196F3', '#F44336', '#FFC107', '#9C27B0',
+        '#FF5722', '#795548', '#607D8B', '#E91E63', '#00BCD4'
+    ];
+
+    const { isAuthenticated: authIsAuthenticated } = useAuth();
+
+    // Comprehensive reset function
+    const resetForm = useCallback(() => {
+        setAmount('');
+        setNote('');
+        setSelectedCategory(null);
+        setDate(new Date());
+        setTransactionType(type || 'expense');
+        setShowDatePicker(false);
+        setShowLocalCategoryModal(false);
+        setNewCategoryName('');
+        setNewCategoryIcon('');
+        setNewCategoryColor('');
+    }, [type]);
 
     useEffect(() => {
-        const checkAuthentication = async () => {
-            try {
-                // Check Supabase session
-                const { data: { session } } = await supabase.auth.getSession();
-                
-                console.log('DEBUG: Supabase Session:', JSON.stringify(session, null, 2));
-
-                // Explicitly store the access token if session exists
-                if (session && session.access_token) {
-                    await AsyncStorage.setItem('token', session.access_token);
-                    console.log('DEBUG: Explicitly stored token from Supabase session');
-                }
-
-                // Additional check for token
-                const storedToken = await AsyncStorage.getItem('token');
-                console.log('DEBUG: Token from AsyncStorage:', storedToken);
-
-                // Determine authentication status
-                const isAuthenticated = !!session;
-                setIsAuthenticated(isAuthenticated);
-                
-                if (isAuthenticated && visible) {
-                    loadCategories();
-                } else {
-                    Alert.alert(
-                        'Authentication Required', 
-                        'Please log in to access transaction features',
-                        [{ 
-                            text: 'OK', 
-                            onPress: () => {
-                                onClose(); // Close the modal
-                                // Optionally navigate to login screen
-                            } 
-                        }]
-                    );
-                }
-            } catch (error) {
-                console.error('CRITICAL: Error checking authentication:', error);
-                Alert.alert(
-                    'Critical Error', 
-                    'Unable to check authentication status. Please restart the app.',
-                    [{ 
-                        text: 'OK', 
-                        onPress: () => console.log('Authentication check error dismissed') 
-                    }]
-                );
-            }
-        };
-
-        checkAuthentication();
-    }, [visible, transactionType]);
+        if (authIsAuthenticated) {
+            loadCategories();
+        }
+    }, [transactionType, authIsAuthenticated]);
 
     const loadCategories = async () => {
         try {
-            // Debug: Check token before making request
-            const token = await AsyncStorage.getItem('token');
-            console.log('Current token:', token);
-
-            // Detailed logging for transaction type
             console.log('Loading categories for transaction type:', transactionType);
 
-            // Validate transaction type
-            if (!transactionType) {
-                throw new Error('Transaction type is undefined');
-            }
-
             const fetchedCategories = await categoriesService.getAll(transactionType);
-            
-            // More detailed logging
             console.log('Fetched categories:', fetchedCategories);
-            console.log('Number of categories:', fetchedCategories ? fetchedCategories.length : 'N/A');
 
-            // Validate categories
             if (!fetchedCategories || !Array.isArray(fetchedCategories) || fetchedCategories.length === 0) {
                 console.warn('Invalid or empty categories array for transaction type:', transactionType);
-                Alert.alert(
-                    'Warning', 
-                    `No categories found for ${transactionType} transactions`,
-                    [{ 
-                        text: 'OK', 
-                        onPress: () => console.log('Category load warning dismissed') 
-                    }]
-                );
-                // Set to an empty array to prevent undefined errors
                 setCategories([]);
                 return;
             }
@@ -121,28 +92,18 @@ const TransactionInput = ({ visible, onClose, type }) => {
             setCategories(fetchedCategories);
         } catch (error) {
             console.error('Failed to load categories:', error);
-            
-            // More detailed error logging
-            if (error.response) {
-                console.error('Error response:', error.response.data);
-                console.error('Error status:', error.response.status);
-                console.error('Error headers:', error.response.headers);
-            }
-            
-            // Set to an empty array to prevent undefined errors
             setCategories([]);
-            
-            Alert.alert(
-                'Error', 
-                `Failed to load categories: ${error.message || 'Unknown error'}. Transaction type: ${transactionType}`,
-                [
-                    { 
-                        text: 'OK', 
-                        onPress: () => console.log('Category load error alert dismissed') 
-                    }
-                ]
-            );
         }
+    };
+
+    const handleModalClose = () => {
+        resetForm();
+        onClose();
+    };
+
+    const handleTransactionTypeChange = (type) => {
+        setTransactionType(type);
+        setSelectedCategory(null); // Reset selected category when type changes
     };
 
     const handleSubmit = async () => {
@@ -172,34 +133,26 @@ const TransactionInput = ({ visible, onClose, type }) => {
             onClose();
         } catch (error) {
             console.error('Failed to create transaction:', error);
-            
+
             // More detailed error logging
             if (error.response) {
                 console.error('Error response:', error.response.data);
                 console.error('Error status:', error.response.status);
             }
-            
+
             Alert.alert(
-                'Error', 
+                'Error',
                 `Failed to create transaction: ${error.message || 'Unknown error'}`,
                 [
-                    { 
-                        text: 'OK', 
-                        onPress: () => console.log('Transaction creation error alert dismissed') 
+                    {
+                        text: 'OK',
+                        onPress: () => console.log('Transaction creation error alert dismissed')
                     }
                 ]
             );
         } finally {
             setLoading(false);
         }
-    };
-
-    const resetForm = () => {
-        setAmount('');
-        setNote('');
-        setSelectedCategory(null);
-        setDate(new Date());
-        setTransactionType('expense');
     };
 
     const handleDateChange = (event, selectedDate) => {
@@ -209,9 +162,149 @@ const TransactionInput = ({ visible, onClose, type }) => {
         }
     };
 
-    const addNewCategory = () => {
-        // Navigate to category creation screen
-        Alert.alert('Coming Soon', 'Category creation will be available soon!');
+    const addNewCategory = async () => {
+        try {
+            // Check if user is authenticated
+            const session = await supabase.auth.getSession();
+
+            if (!session.data.session) {
+                // User is not logged in
+                Alert.alert(
+                    'Authentication Required',
+                    'Please log in to manage categories.',
+                    [
+                        {
+                            text: 'Login',
+                            onPress: () => {
+                                // Try navigation first
+                                if (navigation.navigate) {
+                                    navigation.navigate('Auth');
+                                }
+                                // Fallback to onAddCategory if provided
+                                else if (onAddCategory) {
+                                    onAddCategory('login');
+                                }
+                            }
+                        },
+                        { text: 'Cancel', style: 'cancel' }
+                    ]
+                );
+                return;
+            }
+
+            // Attempt to navigate or use callback
+            if (navigation.navigate) {
+                navigation.navigate('CategoryManagement', {
+                    initialType: transactionType
+                });
+            }
+            // Fallback to local category creation if no navigation
+            else {
+                // Open a local modal or bottom sheet for category creation
+                setShowLocalCategoryModal(true);
+            }
+        } catch (error) {
+            console.error('Error checking authentication:', error);
+            Alert.alert(
+                'Error',
+                'An error occurred. Please try again.'
+            );
+        }
+    };
+
+    const createLocalCategory = async () => {
+        try {
+            // Validate inputs
+            if (!newCategoryName.trim()) {
+                Alert.alert('Error', 'Please enter a category name');
+                return;
+            }
+
+            if (!newCategoryIcon) {
+                Alert.alert('Error', 'Please select an icon');
+                return;
+            }
+
+            if (!newCategoryColor) {
+                Alert.alert('Error', 'Please select a color');
+                return;
+            }
+
+            // Check authentication before creating category
+            const session = await supabase.auth.getSession();
+
+            if (!session.data.session) {
+                // User is not logged in
+                Alert.alert(
+                    'Authentication Required',
+                    'Please log in to create a category.',
+                    [
+                        {
+                            text: 'Login',
+                            onPress: () => {
+                                // Navigate to login or show login modal
+                                if (navigation && navigation.navigate) {
+                                    navigation.navigate('Auth');
+                                } else {
+                                    // Fallback if no navigation
+                                    console.log('No navigation available to login screen');
+                                }
+                            }
+                        },
+                        { text: 'Cancel', style: 'cancel' }
+                    ]
+                );
+                return;
+            }
+
+            const newCategory = {
+                name: newCategoryName.trim(),
+                icon: newCategoryIcon,
+                color: newCategoryColor,
+                type: transactionType,
+                description: ''
+            };
+
+            console.log('[TransactionInput] Creating category:', newCategory);
+
+            // Create the category
+            const createdCategory = await categoriesService.create(newCategory);
+
+            console.log('[TransactionInput] Category created successfully:', createdCategory);
+
+            // Refresh categories
+            const updatedCategories = await categoriesService.getAll(transactionType);
+            setCategories(updatedCategories);
+
+            // Reset modal state
+            setShowLocalCategoryModal(false);
+            setNewCategoryName('');
+            setNewCategoryIcon('');
+            setNewCategoryColor('');
+
+            // Optional: Select the newly created category
+            setSelectedCategory(createdCategory);
+
+            Alert.alert('Success', 'Category created successfully');
+        } catch (error) {
+            console.error('Failed to create category:', error);
+
+            if (error.response) {
+                console.error('Error response:', error.response.data);
+                console.error('Error status:', error.response.status);
+            }
+
+            Alert.alert(
+                'Error',
+                `Failed to create category: ${error.message || 'Unknown error'}`,
+                [
+                    {
+                        text: 'OK',
+                        onPress: () => console.log('Category creation error alert dismissed')
+                    }
+                ]
+            );
+        }
     };
 
     return (
@@ -219,11 +312,12 @@ const TransactionInput = ({ visible, onClose, type }) => {
             visible={visible}
             animationType="slide"
             transparent={false}
+            onRequestClose={handleModalClose} // Ensure modal can be closed with back button
         >
             <View style={styles.container}>
                 <View style={styles.header}>
                     <Text style={styles.headerTitle}>Spend Wise</Text>
-                    <TouchableOpacity onPress={onClose}>
+                    <TouchableOpacity onPress={handleModalClose}>
                         <MaterialCommunityIcons name="close" size={24} color="#333" />
                     </TouchableOpacity>
                 </View>
@@ -237,7 +331,7 @@ const TransactionInput = ({ visible, onClose, type }) => {
                                 transactionType === type && styles.selectedTypeButton,
                                 transactionType === type && { borderBottomColor: type === 'expense' ? '#FF5722' : type === 'income' ? '#4CAF50' : '#2196F3' }
                             ]}
-                            onPress={() => setTransactionType(type)}
+                            onPress={() => handleTransactionTypeChange(type)}
                         >
                             <Text style={[
                                 styles.typeText,
@@ -251,6 +345,40 @@ const TransactionInput = ({ visible, onClose, type }) => {
                 </View>
 
                 <ScrollView style={styles.content}>
+                    {/* Category Selector */}
+                    <View style={styles.inputGroup}>
+                        <Text style={styles.label}>Category</Text>
+                        <View style={styles.categoriesGrid}>
+                            {categories
+                                .filter(cat => cat.type === transactionType)
+                                .map((category) => (
+                                    <TouchableOpacity
+                                        key={category.id}
+                                        style={[
+                                            styles.categoryItem,
+                                            selectedCategory?.id === category.id && styles.selectedCategory
+                                        ]}
+                                        onPress={() => setSelectedCategory(category)}
+                                    >
+                                        <MaterialCommunityIcons
+                                            name={category.icon}
+                                            size={24}
+                                            color={category.color}
+                                        />
+                                        <Text style={styles.categoryName}>{category.name}</Text>
+                                    </TouchableOpacity>
+                                ))
+                            }
+                            <TouchableOpacity
+                                style={styles.addCategoryButton}
+                                onPress={addNewCategory}
+                            >
+                                <MaterialCommunityIcons name="plus" size={24} color="#666" />
+                                <Text style={styles.addCategoryText}>Add</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
                     {/* Date Selector */}
                     <View style={styles.inputGroup}>
                         <Text style={styles.label}>Date</Text>
@@ -297,40 +425,6 @@ const TransactionInput = ({ visible, onClose, type }) => {
                             <Text style={styles.currency}>₩</Text>
                         </View>
                     </View>
-
-                    {/* Categories */}
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>Category</Text>
-                        <View style={styles.categoriesGrid}>
-                            {categories
-                                .filter(cat => cat.type === transactionType)
-                                .map((category) => (
-                                    <TouchableOpacity
-                                        key={category.id}
-                                        style={[
-                                            styles.categoryItem,
-                                            selectedCategory?.id === category.id && styles.selectedCategory
-                                        ]}
-                                        onPress={() => setSelectedCategory(category)}
-                                    >
-                                        <MaterialCommunityIcons
-                                            name={category.icon}
-                                            size={24}
-                                            color={category.color}
-                                        />
-                                        <Text style={styles.categoryName}>{category.name}</Text>
-                                    </TouchableOpacity>
-                                ))
-                            }
-                            <TouchableOpacity
-                                style={styles.addCategoryButton}
-                                onPress={addNewCategory}
-                            >
-                                <MaterialCommunityIcons name="plus" size={24} color="#666" />
-                                <Text style={styles.addCategoryText}>Add</Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
                 </ScrollView>
 
                 <TouchableOpacity
@@ -356,9 +450,102 @@ const TransactionInput = ({ visible, onClose, type }) => {
                         onChange={handleDateChange}
                     />
                 )}
+
+                <Modal
+                    visible={showLocalCategoryModal}
+                    animationType="slide"
+                    transparent={false}
+                >
+                    <View style={styles.container}>
+                        <View style={styles.header}>
+                            <Text style={styles.headerTitle}>Create Category</Text>
+                            <TouchableOpacity onPress={() => setShowLocalCategoryModal(false)}>
+                                <MaterialCommunityIcons name="close" size={24} color="#333" />
+                            </TouchableOpacity>
+                        </View>
+
+                        <ScrollView style={styles.content}>
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Name</Text>
+                                <TextInput
+                                    style={styles.input}
+                                    value={newCategoryName}
+                                    onChangeText={setNewCategoryName}
+                                    placeholder="Category name"
+                                    placeholderTextColor="#999"
+                                />
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Icon</Text>
+                                <View style={styles.categoriesGrid}>
+                                    {availableIcons.map((icon) => (
+                                        <TouchableOpacity
+                                            key={icon}
+                                            style={[
+                                                styles.categoryItem,
+                                                newCategoryIcon === icon && styles.selectedCategory
+                                            ]}
+                                            onPress={() => setNewCategoryIcon(icon)}
+                                        >
+                                            <MaterialCommunityIcons
+                                                name={icon}
+                                                size={24}
+                                                color="#666"
+                                            />
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>Color</Text>
+                                <View style={styles.categoriesGrid}>
+                                    {availableColors.map((color) => (
+                                        <TouchableOpacity
+                                            key={color}
+                                            style={[
+                                                styles.categoryItem,
+                                                newCategoryColor === color && styles.selectedCategory
+                                            ]}
+                                            onPress={() => setNewCategoryColor(color)}
+                                        >
+                                            <View
+                                                style={[
+                                                    styles.categoryItem,
+                                                    { backgroundColor: color, width: 24, height: 24 }
+                                                ]}
+                                            />
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                            </View>
+                        </ScrollView>
+
+                        <TouchableOpacity
+                            style={[
+                                styles.submitButton,
+                                { backgroundColor: '#4CAF50' }
+                            ]}
+                            onPress={createLocalCategory}
+                        >
+                            <Text style={styles.submitText}>Create Category</Text>
+                        </TouchableOpacity>
+                    </View>
+                </Modal>
             </View>
         </Modal>
     );
+};
+
+TransactionInput.propTypes = {
+    visible: PropTypes.bool.isRequired,
+    onClose: PropTypes.func.isRequired,
+    type: PropTypes.oneOf(['expense', 'income', 'investment']),
+    navigation: PropTypes.shape({
+        navigate: PropTypes.func
+    }),
+    onAddCategory: PropTypes.func
 };
 
 const styles = StyleSheet.create({

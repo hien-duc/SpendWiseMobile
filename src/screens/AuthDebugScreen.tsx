@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { 
-    View, 
-    Text, 
-    TextInput, 
-    TouchableOpacity, 
-    StyleSheet, 
+import {
+    View,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
     Alert,
     ScrollView
 } from 'react-native';
@@ -27,10 +27,10 @@ const AuthDebugScreen = () => {
     const handleSignUp = async () => {
         try {
             addLog('Attempting to sign up...');
-            
+
             // Generate a unique test email
             const testEmail = `test_user_${Date.now()}@example.com`;
-            
+
             const { data, error } = await supabase.auth.signUp({
                 email: testEmail,
                 password: password
@@ -44,7 +44,7 @@ const AuthDebugScreen = () => {
 
             addLog(`Sign Up Successful: ${testEmail}`);
             Alert.alert('Success', `Sign up successful for ${testEmail}`);
-            
+
             // Update email state for subsequent login
             setEmail(testEmail);
         } catch (error: any) {
@@ -56,7 +56,7 @@ const AuthDebugScreen = () => {
     const handleLogin = async () => {
         try {
             addLog('Attempting to log in...');
-            
+
             const { data, error } = await supabase.auth.signInWithPassword({
                 email,
                 password
@@ -70,17 +70,17 @@ const AuthDebugScreen = () => {
 
             // Get the current session
             const { data: { session } } = await supabase.auth.getSession();
-            
+
             if (session) {
                 // Store token in AsyncStorage
                 await AsyncStorage.setItem('token', session.access_token);
-                
+
                 addLog('Login Successful');
                 addLog(`Access Token: ${session.access_token.substring(0, 20)}...`);
-                
+
                 // Get current user details
                 const { data: { user } } = await supabase.auth.getUser();
-                
+
                 if (user) {
                     addLog(`Logged in as: ${user.email}`);
                 }
@@ -96,7 +96,7 @@ const AuthDebugScreen = () => {
     const checkSession = async () => {
         try {
             addLog('Checking current session...');
-            
+
             // Check Supabase session with error handling
             let session = null;
             let user = null;
@@ -133,7 +133,7 @@ const AuthDebugScreen = () => {
 
             // Comprehensive alert
             Alert.alert(
-                'Session Check', 
+                'Session Check',
                 `Session: ${session ? 'Active' : 'Inactive'}\n` +
                 `User: ${user?.email || 'Not logged in'}\n` +
                 `Token: ${storedToken ? 'Present' : 'Not Found'}`,
@@ -148,19 +148,19 @@ const AuthDebugScreen = () => {
     const handleLogout = async () => {
         try {
             addLog('Attempting to log out...');
-            
+
             // Sign out from Supabase
             const { error } = await supabase.auth.signOut();
-            
+
             if (error) {
                 addLog(`Logout Error: ${error.message}`);
                 Alert.alert('Logout Error', error.message);
                 return;
             }
-            
+
             // Remove token from AsyncStorage
             await AsyncStorage.removeItem('token');
-            
+
             addLog('Logout Successful');
             Alert.alert('Success', 'Logged out successfully');
         } catch (error: any) {
@@ -172,7 +172,7 @@ const AuthDebugScreen = () => {
     return (
         <View style={styles.container}>
             <Text style={styles.title}>Authentication Debug</Text>
-            
+
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -181,7 +181,7 @@ const AuthDebugScreen = () => {
                 keyboardType="email-address"
                 autoCapitalize="none"
             />
-            
+
             <TextInput
                 style={styles.input}
                 placeholder="Password"
@@ -189,31 +189,31 @@ const AuthDebugScreen = () => {
                 onChangeText={setPassword}
                 secureTextEntry
             />
-            
+
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={handleSignUp}>
                     <Text style={styles.buttonText}>Sign Up</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.button} onPress={handleLogin}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
             </View>
-            
+
             <View style={styles.buttonContainer}>
                 <TouchableOpacity style={styles.button} onPress={checkSession}>
                     <Text style={styles.buttonText}>Check Session</Text>
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity style={styles.button} onPress={handleLogout}>
                     <Text style={styles.buttonText}>Logout</Text>
                 </TouchableOpacity>
             </View>
-            
+
             <TouchableOpacity style={styles.clearButton} onPress={clearLogs}>
                 <Text style={styles.clearButtonText}>Clear Logs</Text>
             </TouchableOpacity>
-            
+
             <Text style={styles.logsTitle}>Authentication Logs:</Text>
             <ScrollView style={styles.logsContainer}>
                 {authLogs.map((log, index) => (

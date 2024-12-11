@@ -4,6 +4,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -83,13 +84,20 @@ const TabNavigator = () => {
             <Tab.Screen
                 name="add"
                 component={TransactionScreen}
+                listeners={({ navigation }) => ({
+                    tabPress: (e) => {
+                        e.preventDefault();
+                        // Force the screen to remount by using a key
+                        navigation.navigate('add', { key: Date.now() });
+                    },
+                })}
                 options={{
                     tabBarShowLabel: false,
                     tabBarIcon: () => (
                         <MaterialCommunityIcons name="plus" color="#FFFFFF" size={30} />
                     ),
                     tabBarButton: (props) => (
-                        <CustomTabBarButton {...props} onPress={props.onPress} />
+                        <CustomTabBarButton {...props} />
                     ),
                 }}
             />

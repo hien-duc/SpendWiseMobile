@@ -111,9 +111,20 @@ export const categoriesService = {
     try {
       console.log(`[CategoriesService] Creating category:`, category);
 
+      // Validate input
+      if (!category.name || !category.type || !category.icon || !category.color) {
+        console.error('[CategoriesService] Invalid category input:', category);
+        throw new Error('Invalid category data. All fields are required.');
+      }
+
       // Get the current token for debugging
       const token = await AsyncStorage.getItem('token');
       console.log(`[CategoriesService] Current token: ${token}`);
+
+      // Ensure token exists
+      if (!token) {
+        throw new Error('Authentication token is missing');
+      }
 
       const response = await apiClient.post<ApiResponse<Category>>('/categories', category);
 
@@ -126,7 +137,7 @@ export const categoriesService = {
       }
 
       // Validate data
-      const createdCategory = response.data.data;
+      const createdCategory = response.data.data || response.data;
       console.log(`[CategoriesService] Created category:`, createdCategory);
 
       if (!createdCategory) {
