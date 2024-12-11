@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react-native/no-inline-styles */
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -6,6 +9,7 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import HomeScreen from '../screens/HomeScreen';
 import ReportScreen from '../screens/ReportScreen';
+import TransactionScreen from '../screens/TransactionScreen';
 import OtherScreen from '../screens/OtherScreen';
 import SettingScreen from '../screens/SettingScreen';
 
@@ -33,7 +37,7 @@ const TabNavigator = () => {
     return (
         <Tab.Navigator
             screenOptions={{
-                tabBarShowLabel: false,
+                tabBarShowLabel: true,
                 tabBarStyle: {
                     position: 'absolute',
                     height: 60,
@@ -78,16 +82,14 @@ const TabNavigator = () => {
             />
             <Tab.Screen
                 name="add"
-                component={View}
+                component={TransactionScreen}
                 options={{
+                    tabBarShowLabel: false,
                     tabBarIcon: () => (
                         <MaterialCommunityIcons name="plus" color="#FFFFFF" size={30} />
                     ),
                     tabBarButton: (props) => (
-                        <CustomTabBarButton {...props} onPress={() => {
-                            // Handle plus button press
-                            console.log('Plus button pressed');
-                        }} />
+                        <CustomTabBarButton {...props} onPress={props.onPress} />
                     ),
                 }}
             />

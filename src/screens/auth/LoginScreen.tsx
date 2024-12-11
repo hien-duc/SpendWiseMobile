@@ -30,7 +30,11 @@ const LoginScreen = ({ navigation }: any) => {
     if (error) {
       Alert.alert('Error', error.message);
     } else {
-      navigation.navigate('MainTabs');
+      // Reset the navigation stack to prevent going back
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'MainTabs' }],
+      });
     }
   };
 
