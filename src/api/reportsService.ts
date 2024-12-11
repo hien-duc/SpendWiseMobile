@@ -1,41 +1,31 @@
 import { apiClient, handleApiError, ApiResponse } from './config';
-import { MonthlyReport } from './types';
+
+interface MonthlyReportData {
+  total_income: number;
+  total_expense: number;
+  total_investment: number;
+  net_balance: number;
+  category_name: string;
+  category_icon: string;
+  category_color: string;
+  category_type: 'expense' | 'income' | 'investment';
+  category_amount: number;
+  category_percentage: number;
+}
 
 export const reportsService = {
-  getMonthlyReport: async (month?: number, year?: number): Promise<MonthlyReport> => {
+  getMonthlyReport: async (month: number, year: number): Promise<MonthlyReportData[]> => {
     try {
-      const response = await apiClient.get<ApiResponse<MonthlyReport>>('/reports/monthly', {
-        params: {
-          month,
-          year
-        }
-      });
+      const response = await apiClient.get<ApiResponse<MonthlyReportData[]>>(`/reports/monthly/${year}/${month}`);
       return response.data.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  // Add more report-related methods as needed
-  getCategoryBreakdown: async (startDate: string, endDate: string): Promise<any> => {
+  getCategoryTrend: async (categoryId: string, year: number): Promise<any> => {
     try {
-      const response = await apiClient.get<ApiResponse<any>>('/reports/category-breakdown', {
-        params: {
-          start_date: startDate,
-          end_date: endDate
-        }
-      });
-      return response.data.data;
-    } catch (error) {
-      throw handleApiError(error);
-    }
-  },
-
-  getTrends: async (period: 'weekly' | 'monthly' | 'yearly'): Promise<any> => {
-    try {
-      const response = await apiClient.get<ApiResponse<any>>('/reports/trends', {
-        params: { period }
-      });
+      const response = await apiClient.get<ApiResponse<any>>(`/reports/category-trend/${year}/${categoryId}`);
       return response.data.data;
     } catch (error) {
       throw handleApiError(error);

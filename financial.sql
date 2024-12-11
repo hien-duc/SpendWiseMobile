@@ -43,18 +43,18 @@ begin
     insert into public.categories (user_id, name, type, icon, color, is_default) values
     -- Expense categories
     (user_id_param, 'Food', 'expense', 'fastfood', '#FF5252', true),
-    (user_id_param, 'Transportation', 'expense', 'directions_car', '#448AFF', true),
-    (user_id_param, 'Houseware', 'expense', 'home_work', '#9C27B0', true),
+    (user_id_param, 'Transportation', 'expense', 'directions-car', '#448AFF', true),
+    (user_id_param, 'Houseware', 'expense', 'home-work', '#9C27B0', true),
     (user_id_param, 'Bills', 'expense', 'payments', '#FF9800', true),
-    (user_id_param, 'Shopping', 'expense', 'shopping_bag', '#E91E63', true),
+    (user_id_param, 'Shopping', 'expense', 'shopping-bag', '#E91E63', true),
     -- Income categories
-    (user_id_param, 'Salary', 'income', 'universal_currency_alt', '#4CAF50', true),
-    (user_id_param, 'Freelance', 'income', 'person_apron', '#8BC34A', true),
-    (user_id_param, 'Bonus', 'income', 'bonus', '#CDDC39', true),
+    (user_id_param, 'Salary', 'income', 'currency-exchange', '#4CAF50', true),
+    (user_id_param, 'Freelance', 'income', 'work', '#8BC34A', true),
+    (user_id_param, 'Bonus', 'income', 'money', '#CDDC39', true),
     -- Investment categories
-    (user_id_param, 'Stocks', 'investment', 'inventory_2', '#795548', true),
+    (user_id_param, 'Stocks', 'investment', 'inventory', '#795548', true),
     (user_id_param, 'Real Estate', 'investment', 'domain', '#607D8B', true),
-    (user_id_param, 'Crypto', 'investment', 'currency_bitcoin', '#9E9E9E', true);
+    (user_id_param, 'Crypto', 'investment', 'currency-bitcoin', '#9E9E9E', true);
 end;
 $$ language plpgsql;
 
@@ -140,6 +140,16 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Usage example:
+-- SELECT * FROM get_monthly_calendar_data('user-uuid', 2024, 1);
+
+-- Sample output:
+-- transaction_id | transaction_date | category_id | category_name | category_icon | category_color | amount  | transaction_type | note          | month_total_income | month_total_expense | month_total_investment | month_net_balance
+-- --------------+-----------------+-------------+--------------+--------------+---------------+---------+-----------------+--------------+------------------+-------------------+---------------------+------------------
+-- uuid-1        | 2024-01-15     | cat-uuid-1  | Salary       | salary       | #4CAF50       | 5000.00 | income          | Monthly pay  |          5000.00 |           2000.00 |             1000.00 |          2000.00
+-- uuid-2        | 2024-01-15     | cat-uuid-2  | Food         | restaurant   | #FF5252       |  200.00 | expense         | Lunch        |          5000.00 |           2000.00 |             1000.00 |          2000.00
+-- uuid-3        | 2024-01-14     | cat-uuid-3  | Stocks       | trending_up  | #795548       | 1000.00 | investment      | AAPL shares  |          5000.00 |           2000.00 |             1000.00 |          2000.00
+-- ...and so on
 
 -- Get monthly report data with category breakdowns and totals
 CREATE OR REPLACE FUNCTION get_monthly_report_data(
@@ -215,6 +225,14 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Usage example:
+-- SELECT * FROM get_monthly_report_data('user-uuid', 2024, 12);
+
+-- Sample output:
+-- total_income | total_expense | total_investment | net_balance | category_name | category_icon | category_color | category_type | category_amount | category_percentage
+-- -------------+---------------+-----------------+-------------+--------------+--------------+---------------+--------------+----------------+-------------------
+--     5000.00  |     23535.00  |         0.00    |  -18535.00  | Food         | restaurant   | #FF5252       | expense       |       23535.00  |            100.00
+--     5000.00  |     23535.00  |         0.00    |  -18535.00  | Salary       | salary       | #4CAF50       | income        |        5000.00  |            100.00
 
 
 -- Get category trend data for detail view
@@ -291,7 +309,18 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Usage example:
+-- SELECT * FROM get_category_trend_detail('user-uuid', 2024, 'category-uuid');
 
+-- Sample output for Food category:
+-- month | month_name | amount  | category_name | category_icon | category_color | category_type | date_label        | latest_transaction_date
+-- ------+------------+---------+--------------+--------------+---------------+--------------+------------------+----------------------
+--     7 | July      |    0.00 | Food         | restaurant   | #FF5252       | expense      |                  | 2024-12-07
+--     8 | August    |    0.00 | Food         | restaurant   | #FF5252       | expense      |                  | 2024-12-07
+--     9 | September |    0.00 | Food         | restaurant   | #FF5252       | expense      |                  | 2024-12-07
+--    10 | October   |    0.00 | Food         | restaurant   | #FF5252       | expense      |                  | 2024-12-07
+--    11 | November  | 70000.00| Food         | restaurant   | #FF5252       | expense      |                  | 2024-12-07
+--    12 | December  | 23535.00| Food         | restaurant   | #FF5252       | expense      | 12.7 2024 (Sat)  | 2024-12-07
 
 
 -- Get annual income report with monthly breakdown and total
@@ -357,7 +386,17 @@ begin
 end;
 $$ language plpgsql;
 
+-- Usage example:
+-- SELECT * FROM get_annual_transactions_report('your-user-id', 2024);
 
+-- Sample output:
+-- month_number | month_name | income_amount | expense_amount | investment_amount | running_income_total | running_expense_total | running_investment_total | year_to_date_income_total | year_to_date_expense_total | year_to_date_investment_total
+-- -------------+------------+--------------+----------------+-------------------+---------------------+-----------------------+-------------------------+---------------------------+---------------------------+-------------------------------
+--           1 | January    |      5000.00 |        2000.00 |          1000.00 |             5000.00 |              2000.00 |               1000.00 |                  60000.00 |                  24000.00 |                   12000.00
+--           2 | February   |      5000.00 |        2000.00 |          1000.00 |            10000.00 |              4000.00 |               2000.00 |                  60000.00 |                  24000.00 |                   12000.00
+--           3 | March      |      5000.00 |        2000.00 |          1000.00 |            15000.00 |              6000.00 |               3000.00 |                  60000.00 |                  24000.00 |                   12000.00
+--           4 | April      |      5000.00 |        2000.00 |          1000.00 |            20000.00 |              8000.00 |               4000.00 |                  60000.00 |                  24000.00 |                   12000.00
+--          ...and so on
 
 -- Get annual transaction trends with total (combined function)
 -- anual report
@@ -445,117 +484,17 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-
-
-
-
--- Get all-time financial report with initial balance
--- all time report
-create or replace function get_all_time_balance_report(
-    user_id_param uuid
-)
-returns table (
-    year integer,
-    month integer,
-    month_name text,
-    income_amount decimal(12,2),
-    expense_amount decimal(12,2),
-    investment_amount decimal(12,2),
-    net_amount decimal(12,2),
-    initial_balance decimal(12,2),
-    cumulative_balance decimal(12,2)
-) as $$
-begin
-    return query
-    with monthly_transactions as (
-        select 
-            extract(year from date)::integer as year,
-            extract(month from date)::integer as month,
-            sum(case when type = 'income' then amount else 0 end) as income,
-            sum(case when type = 'expense' then amount else 0 end) as expense,
-            sum(case when type = 'investment' then amount else 0 end) as investment
-        from transactions
-        where user_id = user_id_param
-        group by extract(year from date), extract(month from date)
-    ),
-    initial_bal as (
-        select coalesce(initial_balance, 0.00) as balance
-        from profiles
-        where user_id = user_id_param
-    )
-    select 
-        mt.year,
-        mt.month,
-        to_char(to_date(mt.month::text, 'MM'), 'Month') as month_name,
-        coalesce(mt.income, 0.00) as income_amount,
-        coalesce(mt.expense, 0.00) as expense_amount,
-        coalesce(mt.investment, 0.00) as investment_amount,
-        (coalesce(mt.income, 0.00) - coalesce(mt.expense, 0.00) - coalesce(mt.investment, 0.00)) as net_amount,
-        (select balance from initial_bal) as initial_balance,
-        (select balance from initial_bal) + 
-        sum(coalesce(mt.income, 0.00) - coalesce(mt.expense, 0.00) - coalesce(mt.investment, 0.00)) 
-        over (order by mt.year, mt.month) as cumulative_balance
-    from monthly_transactions mt
-    order by mt.year, mt.month;
-end;
-$$ language plpgsql;
-
-        400.00 |          100.00 |     300.00 |         1000.00 |           2100.00
-
-
--- Get all-time transactions by categories report
--- Combined all-time category analysis function
--- all time category report
-CREATE OR REPLACE FUNCTION get_all_time_categories_summary(
-    user_id UUID
-)
-RETURNS TABLE (
-    category_name TEXT,
-    category_icon TEXT,
-    category_color TEXT,
-    total_amount DECIMAL(12,2),
-    percentage DECIMAL(5,2),
-    transaction_type transaction_type
-) AS $$
-BEGIN
-    RETURN QUERY
-    WITH category_totals AS (
-        SELECT 
-            c.name,
-            c.icon,
-            c.color,
-            COALESCE(SUM(t.amount), 0) as total,
-            c.type as trans_type
-        FROM categories c
-        LEFT JOIN transactions t ON 
-            t.category_id = c.id AND
-            t.user_id = user_id
-        WHERE c.user_id = user_id
-        GROUP BY c.id, c.name, c.icon, c.color, c.type
-    ),
-    type_totals AS (
-        SELECT 
-            trans_type,
-            SUM(total) as type_total
-        FROM category_totals
-        GROUP BY trans_type
-    )
-    SELECT 
-        ct.name,
-        ct.icon,
-        ct.color,
-        ct.total,
-        CASE 
-            WHEN tt.type_total = 0 THEN 0
-            ELSE ROUND((ct.total / tt.type_total * 100)::numeric, 2)
-        END,
-        ct.trans_type
-    FROM category_totals ct
-    JOIN type_totals tt ON ct.trans_type = tt.trans_type
-    ORDER BY ct.trans_type, ct.total DESC;
-END;
-$$ LANGUAGE plpgsql;
-
+-- Usage example for the combined annual trends function
+-- Usage:
+-- SELECT * FROM get_annual_transactions_trend('user-uuid', 2024);
+-- Sample output:
+-- year_number | month_number | month_name | income_amount | income_running_total | income_year_total | expense_amount | expense_running_total | expense_year_total | investment_amount | investment_running_total | investment_year_total
+-- ------------+--------------+------------+--------------+--------------------+------------------+----------------+---------------------+-------------------+------------------+-----------------------+---------------------
+--       2024 |            1 | January    |      5000.00 |            5000.00 |         60000.00 |        2000.00 |             2000.00 |          24000.00 |          1000.00 |               1000.00 |            12000.00
+--       2024 |            2 | February   |      5000.00 |           10000.00 |         60000.00 |        2000.00 |             4000.00 |          24000.00 |          1000.00 |               2000.00 |            12000.00
+--       2024 |            3 | March      |      5000.00 |           15000.00 |         60000.00 |        2000.00 |             6000.00 |          24000.00 |          1000.00 |               3000.00 |            12000.00
+--       2024 |            4 | April      |      5000.00 |           20000.00 |         60000.00 |        2000.00 |             8000.00 |          24000.00 |          1000.00 |               4000.00 |            12000.00
+--       ...and so on
 
 -- Get annual transactions by categories report (combined function)
 -- category annual  report
@@ -611,9 +550,226 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Usage example for the combined annual categories function
+-- Usage:
+-- SELECT * FROM get_annual_categories_summary('user-uuid', 2024);
+-- Sample output:
+-- category_name | category_icon | category_color | total_amount | percentage | transaction_type
+-- -------------+--------------+---------------+--------------+------------+-----------------
+-- Salary       | salary       | #4CAF50       |     50000.00 |      75.00 | income
+-- Freelance    | work         | #8BC34A       |      8000.00 |      13.33 | income
+-- Other        | more         | #CDDC39       |      1666.67 |       2.50 | income
+-- Food         | fastfood     | #FF5252       |     24000.00 |      40.00 | expense
+-- Transport    | car          | #448AFF       |     18000.00 |      30.00 | expense
+-- Bills        | payments     | #FF9800       |     12000.00 |      20.00 | expense
+-- Shopping     | cart         | #E91E63       |      6000.00 |      10.00 | expense
+-- Stocks       | trending_up  | #795548       |     30000.00 |      60.00 | investment
+-- Real Estate  | home         | #607D8B       |     15000.00 |      30.00 | investment
+-- Crypto       | currency     | #9E9E9E       |      5000.00 |      10.00 | investment
+
+-- Get all-time financial report with initial balance
+-- all time report
+create or replace function get_all_time_balance_report(
+    user_id_param uuid
+)
+returns table (
+    year integer,
+    month integer,
+    month_name text,
+    income_amount decimal(12,2),
+    expense_amount decimal(12,2),
+    investment_amount decimal(12,2),
+    net_amount decimal(12,2),
+    initial_balance decimal(12,2),
+    cumulative_balance decimal(12,2)
+) as $$
+begin
+    return query
+    with monthly_transactions as (
+        select 
+            extract(year from date)::integer as year,
+            extract(month from date)::integer as month,
+            sum(case when type = 'income' then amount else 0 end) as income,
+            sum(case when type = 'expense' then amount else 0 end) as expense,
+            sum(case when type = 'investment' then amount else 0 end) as investment
+        from transactions
+        where user_id = user_id_param
+        group by extract(year from date), extract(month from date)
+    ),
+    initial_bal as (
+        select coalesce(initial_balance, 0.00) as balance
+        from profiles
+        where user_id = user_id_param
+    )
+    select 
+        mt.year,
+        mt.month,
+        to_char(to_date(mt.month::text, 'MM'), 'Month') as month_name,
+        coalesce(mt.income, 0.00) as income_amount,
+        coalesce(mt.expense, 0.00) as expense_amount,
+        coalesce(mt.investment, 0.00) as investment_amount,
+        (coalesce(mt.income, 0.00) - coalesce(mt.expense, 0.00) - coalesce(mt.investment, 0.00)) as net_amount,
+        (select balance from initial_bal) as initial_balance,
+        (select balance from initial_bal) + 
+        sum(coalesce(mt.income, 0.00) - coalesce(mt.expense, 0.00) - coalesce(mt.investment, 0.00)) 
+        over (order by mt.year, mt.month) as cumulative_balance
+    from monthly_transactions mt
+    order by mt.year, mt.month;
+end;
+$$ language plpgsql;
 
 
+-- Get all-time transactions by categories report
+-- Combined all-time category analysis function
+-- all time category report
+CREATE OR REPLACE FUNCTION get_all_time_categories_summary(
+    user_id UUID
+)
+RETURNS TABLE (
+    category_name TEXT,
+    category_icon TEXT,
+    category_color TEXT,
+    total_amount DECIMAL(12,2),
+    percentage DECIMAL(5,2),
+    transaction_type transaction_type
+) AS $$
+BEGIN
+    RETURN QUERY
+    WITH category_totals AS (
+        SELECT 
+            c.name,
+            c.icon,
+            c.color,
+            COALESCE(SUM(t.amount), 0) as total,
+            c.type as trans_type
+        FROM categories c
+        LEFT JOIN transactions t ON 
+            t.category_id = c.id AND
+            t.user_id = user_id
+        WHERE c.user_id = user_id
+        GROUP BY c.id, c.name, c.icon, c.color, c.type
+    ),
+    type_totals AS (
+        SELECT 
+            trans_type,
+            SUM(total) as type_total
+        FROM category_totals
+        GROUP BY trans_type
+    )
+    SELECT 
+        ct.name,
+        ct.icon,
+        ct.color,
+        ct.total,
+        CASE 
+            WHEN tt.type_total = 0 THEN 0
+            ELSE ROUND((ct.total / tt.type_total * 100)::numeric, 2)
+        END,
+        ct.trans_type
+    FROM category_totals ct
+    JOIN type_totals tt ON ct.trans_type = tt.trans_type
+    ORDER BY ct.trans_type, ct.total DESC;
+END;
+$$ LANGUAGE plpgsql;
 
+-- Usage example for the combined all-time function
+-- Usage:
+-- SELECT * FROM get_all_time_categories_summary('user-uuid');
+-- Sample output:
+-- category_name | category_icon | category_color | total_amount | percentage | transaction_type
+-- -------------+--------------+---------------+--------------+------------+-----------------
+-- Salary       | salary       | #4CAF50       |    150000.00 |      75.00 | income
+-- Freelance    | work         | #8BC34A       |     30000.00 |      15.00 | income
+-- Bonus        | star         | #CDDC39       |     20000.00 |      10.00 | income
+-- Food         | fastfood     | #FF5252       |     24000.00 |      40.00 | expense
+-- Transport    | car          | #448AFF       |     18000.00 |      30.00 | expense
+-- Bills        | payments     | #FF9800       |     12000.00 |      20.00 | expense
+-- Shopping     | cart         | #E91E63       |      6000.00 |      10.00 | expense
+-- Stocks       | trending_up  | #795548       |     45000.00 |      60.00 | investment
+-- Real Estate  | home         | #607D8B       |     22500.00 |      30.00 | investment
+-- Crypto       | currency     | #9E9E9E       |      7500.00 |      10.00 | investment
+
+------------------------------------------------------------
+-- Usage examples:
+-- First set initial balance:
+-- SELECT update_initial_balance('your-user-id', 1000.00);
+
+-- Then get the report:
+-- SELECT * FROM get_all_time_balance_report('your-user-id');
+
+-- Sample output:
+-- year | month | month_name | income_amount | expense_amount | investment_amount | net_amount | initial_balance | cumulative_balance
+-- -----+-------+------------+--------------+----------------+------------------+------------+-----------------+-------------------
+-- 2024 |     1 | January    |      1000.00 |        500.00 |          100.00 |     400.00 |         1000.00 |           1400.00
+-- 2024 |     2 | February   |      1200.00 |        600.00 |          200.00 |     400.00 |         1000.00 |           1800.00
+-- 2024 |     3 | March      |       800.00 |        400.00 |          100.00 |     300.00 |         1000.00 |           2100.00
+------------------------------------------------------------
+
+-- Enable Row Level Security (RLS)
+alter table public.profiles enable row level security;
+alter table public.categories enable row level security;
+alter table public.transactions enable row level security;
+
+-- Policies for profiles table
+create policy "Profiles are viewable by owner"
+    on public.profiles for select
+    using ( auth.uid() = id );
+
+create policy "Profiles are insertable by owner"
+    on public.profiles for insert
+    with check ( auth.uid() = id );
+
+create policy "Profiles are updatable by owner"
+    on public.profiles for update
+    using ( auth.uid() = id );
+
+-- Policies for categories table
+create policy "Categories are viewable by owner"
+    on public.categories for select
+    using ( auth.uid() = user_id );
+
+create policy "Categories are insertable by owner"
+    on public.categories for insert
+    with check ( auth.uid() = user_id );
+
+create policy "Categories are updatable by owner"
+    on public.categories for update
+    using ( auth.uid() = user_id );
+
+create policy "Categories are deletable by owner"
+    on public.categories for delete
+    using ( auth.uid() = user_id );
+
+-- Policies for transactions table
+create policy "Transactions are viewable by owner"
+    on public.transactions for select
+    using ( auth.uid() = user_id );
+
+create policy "Transactions are insertable by owner"
+    on public.transactions for insert
+    with check ( auth.uid() = user_id );
+
+create policy "Transactions are updatable by owner"
+    on public.transactions for update
+    using ( auth.uid() = user_id );
+
+create policy "Transactions are deletable by owner"
+    on public.transactions for delete
+    using ( auth.uid() = user_id );
+
+-- Grant access to service role
+grant usage on schema public to service_role;
+grant all privileges on all tables in schema public to service_role;
+grant all privileges on all sequences in schema public to service_role;
+grant all privileges on all functions in schema public to service_role;
+
+-- Add indexes for better performance
+create index if not exists idx_transactions_user_date on transactions(user_id, date);
+create index if not exists idx_transactions_category on transactions(category_id);
+create index if not exists idx_categories_user on categories(user_id);
+create index if not exists idx_transactions_type on transactions(type);
+create index if not exists idx_transactions_date on transactions(date);
+create index if not exists idx_categories_type on categories(type);
 
 CREATE TABLE public.financial_goals (
     id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
@@ -625,6 +781,35 @@ CREATE TABLE public.financial_goals (
     status TEXT DEFAULT 'in_progress' CHECK (status IN ('in_progress', 'completed', 'cancelled')),
 );
 
+-- Enable RLS for financial_goals table
+ALTER TABLE public.financial_goals ENABLE ROW LEVEL SECURITY;
+
+-- Policy for viewing financial goals
+CREATE POLICY "Users can view their own financial goals"
+    ON public.financial_goals
+    FOR SELECT
+    USING (auth.uid() = user_id);
+
+-- Policy for creating financial goals
+CREATE POLICY "Users can create their own financial goals"
+    ON public.financial_goals
+    FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+-- Policy for updating financial goals
+CREATE POLICY "Users can update their own financial goals"
+    ON public.financial_goals
+    FOR UPDATE
+    USING (auth.uid() = user_id);
+
+-- Policy for deleting financial goals
+CREATE POLICY "Users can delete their own financial goals"
+    ON public.financial_goals
+    FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Grant access to service role
+GRANT ALL ON public.financial_goals TO service_role;
 
 -- Create index for better performance
 CREATE INDEX IF NOT EXISTS idx_financial_goals_user_id ON public.financial_goals(user_id);
@@ -861,3 +1046,77 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Enable Row Level Security for all tables
+ALTER TABLE public.fixed_costs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.periodic_income ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.fixed_investments ENABLE ROW LEVEL SECURITY;
+
+-- Policies for fixed_costs
+CREATE POLICY "Users can view their own fixed costs"
+    ON public.fixed_costs FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own fixed costs"
+    ON public.fixed_costs FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own fixed costs"
+    ON public.fixed_costs FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own fixed costs"
+    ON public.fixed_costs FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Policies for periodic_income
+CREATE POLICY "Users can view their own periodic income"
+    ON public.periodic_income FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own periodic income"
+    ON public.periodic_income FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own periodic income"
+    ON public.periodic_income FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own periodic income"
+    ON public.periodic_income FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Policies for fixed_investments
+CREATE POLICY "Users can view their own fixed investments"
+    ON public.fixed_investments FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can create their own fixed investments"
+    ON public.fixed_investments FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own fixed investments"
+    ON public.fixed_investments FOR UPDATE
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own fixed investments"
+    ON public.fixed_investments FOR DELETE
+    USING (auth.uid() = user_id);
+
+-- Grant access to service role for all tables
+GRANT ALL ON public.fixed_costs TO service_role;
+GRANT ALL ON public.periodic_income TO service_role;
+GRANT ALL ON public.fixed_investments TO service_role;
+
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_fixed_costs_user_id ON public.fixed_costs(user_id);
+CREATE INDEX IF NOT EXISTS idx_fixed_costs_category_id ON public.fixed_costs(category_id);
+CREATE INDEX IF NOT EXISTS idx_fixed_costs_frequency ON public.fixed_costs(frequency);
+
+CREATE INDEX IF NOT EXISTS idx_periodic_income_user_id ON public.periodic_income(user_id);
+CREATE INDEX IF NOT EXISTS idx_periodic_income_category_id ON public.periodic_income(category_id);
+CREATE INDEX IF NOT EXISTS idx_periodic_income_frequency ON public.periodic_income(frequency);
+
+CREATE INDEX IF NOT EXISTS idx_fixed_investments_user_id ON public.fixed_investments(user_id);
+CREATE INDEX IF NOT EXISTS idx_fixed_investments_category_id ON public.fixed_investments(category_id);
+CREATE INDEX IF NOT EXISTS idx_fixed_investments_frequency ON public.fixed_investments(frequency);
+CREATE INDEX IF NOT EXISTS idx_fixed_investments_investment_type ON public.fixed_investments(investment_type);
