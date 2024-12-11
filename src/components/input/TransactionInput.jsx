@@ -25,25 +25,27 @@ import { useAuthGuard } from '../../hooks/useAuthGuard';
 import { ColorPicker, fromHsv } from 'react-native-color-picker';
 
 const COLOR_PALETTE = [
-    // Vibrant Colors
-    '#FF6B6B', // Pastel Red
-    '#4ECDC4', // Turquoise
-    '#45B7D1', // Sky Blue
-    '#FDCB6E', // Sunflower Yellow
-    '#6C5CE7', // Purple
-    '#A8E6CF', // Mint Green
-    '#FF8ED4', // Pink
-    '#FAD390', // Peach
-    '#55E6C1', // Seafoam Green
-    '#5F27CD', // Deep Purple
-    '#48DBFB', // Bright Blue
-    '#FF6A5B', // Coral
-    '#1DD1A1', // Emerald Green
-    '#F368E0', // Bright Pink
-    '#2E86DE', // Strong Blue
-    '#2196F3', // Blue
-    '#4CAF50', // Green
-    '#FF5722', // Orange
+    // Highly Distinguishable Colors
+    '#FF5722', // Deep Orange - Vibrant and warm
+    '#2196F3', // Bright Blue - Cool and clear
+    '#4CAF50', // Green - Natural and fresh
+    '#9C27B0', // Deep Purple - Rich and bold
+    '#FF9800', // Orange - Energetic
+    '#009688', // Teal - Calm and unique
+    '#F44336', // Red - Strong and attention-grabbing
+    '#3F51B5', // Indigo - Deep and sophisticated
+    '#FFEB3B', // Bright Yellow - Cheerful and light
+    '#795548', // Brown - Earthy and grounded
+    '#00BCD4', // Cyan - Cool and modern
+    '#673AB7', // Deep Purple Variant - Mysterious
+    '#8BC34A', // Light Green - Soft and natural
+    '#E91E63', // Pink - Playful and vibrant
+    '#FFC107', // Amber - Warm and inviting
+    '#607D8B', // Blue Grey - Neutral and professional
+    '#FF4081', // Pink Accent - Bold and feminine
+    '#40C4FF', // Light Blue - Bright and airy
+    '#7C4DFF', // Deep Purple Accent - Elegant
+    '#18FFFF'  // Cyan Accent - Futuristic
 ];
 
 const TransactionInput = ({
