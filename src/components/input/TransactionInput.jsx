@@ -22,7 +22,6 @@ import { supabase } from '../../../supabase';
 import PropTypes from 'prop-types';
 import { useAuth } from '../../context/AuthContext';
 import { useAuthGuard } from '../../hooks/useAuthGuard';
-import { ColorPicker, fromHsv } from 'react-native-color-picker';
 
 const COLOR_PALETTE = [
     // Highly Distinguishable Colors

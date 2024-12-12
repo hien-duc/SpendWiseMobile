@@ -7,10 +7,12 @@ import { format } from 'date-fns';
 import { Dimensions } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import MonthYearPicker from '../components/MonthYearPicker';
-import { PieChart } from 'react-native-svg-charts';
-import { Text as SVGText } from 'react-native-svg';
+import Svg, { G, Path, Circle, Text as SvgText } from 'react-native-svg';
 
 const { width } = Dimensions.get('window');
+const CHART_SIZE = width * 0.7;
+const RADIUS = CHART_SIZE / 2;
+const CENTER = CHART_SIZE / 2;
 
 interface CategoryTotal {
     category: string;
@@ -24,7 +26,7 @@ interface CategoryTotal {
 const ReportScreen = () => {
     const navigation = useNavigation();
     const { isAuthenticated, logout } = useAuth();
-    const [currentDate, setCurrentDate] = useState(new Date());
+    const [currentDate, setCurrentDate] = useState<Date>(() => new Date());
     const [expenseTotal, setExpenseTotal] = useState(0);
     const [incomeTotal, setIncomeTotal] = useState(0);
     const [investmentTotal, setInvestmentTotal] = useState(0);
@@ -32,16 +34,6 @@ const ReportScreen = () => {
     const [categoryTotals, setCategoryTotals] = useState<CategoryTotal[]>([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState<'expense' | 'income' | 'investment'>('expense');
-
-    useEffect(() => {
-        console.log('Initial Current Date:', {
-            fullDate: currentDate,
-            month: currentDate.getMonth() + 1,
-            year: currentDate.getFullYear(),
-            isoString: currentDate.toISOString(),
-            localString: currentDate.toLocaleString()
-        });
-    }, []);
 
     const fetchReportData = async () => {
         try {
@@ -51,8 +43,9 @@ const ReportScreen = () => {
             }
 
             setLoading(true);
-            const month = currentDate.getMonth() + 1;
-            const year = currentDate.getFullYear();
+            const date = currentDate || new Date();
+            const month = date.getMonth() + 1;
+            const year = date.getFullYear();
 
             console.log('Fetching report for:', { month, year });
             const reportData = await reportsService.getMonthlyReport(month, year);
@@ -60,14 +53,11 @@ const ReportScreen = () => {
 
             if (reportData && reportData.length > 0) {
                 const firstRow = reportData[0];
-
-                // The values are already numbers from the API
                 setExpenseTotal(firstRow.total_expense);
                 setIncomeTotal(firstRow.total_income);
                 setInvestmentTotal(firstRow.total_investment);
                 setNetBalance(firstRow.total_net_balance);
 
-                // Transform category data - no need to parse numbers
                 const transformedCategories = reportData.map(item => ({
                     category: item.category_name,
                     amount: item.category_amount,
@@ -89,10 +79,7 @@ const ReportScreen = () => {
             }
         } catch (error) {
             console.error('Error fetching report data:', error);
-            Alert.alert(
-                'Error',
-                'Failed to fetch report data. Please try again.'
-            );
+            Alert.alert('Error', 'Failed to fetch report data. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -103,176 +90,103 @@ const ReportScreen = () => {
     }, [currentDate, isAuthenticated]);
 
     const handleDateChange = (newDate: Date) => {
-        console.log('Date Changed:', {
-            oldDate: currentDate,
-            newDate: newDate,
-            newMonth: newDate.getMonth() + 1,
-            newYear: newDate.getFullYear(),
-            newDateISO: newDate.toISOString()
-        });
-
+        if (!newDate) {
+            newDate = new Date();
+        }
         setCurrentDate(newDate);
         fetchReportData();
     };
 
-    const handleCategoryPress = (category: CategoryTotal) => {
-        navigation.navigate('CategoryDetail', {
-            category: category.category,
-            month: currentDate.getMonth() + 1,
-            year: currentDate.getFullYear()
-        });
-    };
-
-    const getPieChartData = () => {
-        try {
-            console.log('All Category Totals:', categoryTotals);
-            console.log('Active Tab:', activeTab);
-
-            const filteredCategories = categoryTotals.filter(cat => {
-                const isMatchingType = cat.type === activeTab;
-                const hasPositiveAmount = cat.amount > 0;
-                console.log(`Category: ${cat.category}, Type: ${cat.type}, Amount: ${cat.amount}, Matches: ${isMatchingType && hasPositiveAmount}`);
-                return isMatchingType && hasPositiveAmount;
-            });
-
-            console.log('Filtered Categories:', filteredCategories);
-
-            // If no data, return a default "No Data" entry
-            if (filteredCategories.length === 0) {
-                console.log('No categories found, returning default data');
-                return [{
-                    name: 'No Data',
-                    value: 1,
-                    color: '#CCCCCC',
-                    legendFontColor: '#7F7F7F',
-                    legendFontSize: 12
-                }];
-            }
-
-            return filteredCategories.map(category => ({
-                name: category.category,
-                value: category.amount,
-                color: category.color || '#CCCCCC',
-                legendFontColor: '#7F7F7F',
-                legendFontSize: 12
-            }));
-        } catch (error) {
-            console.error('Error in getPieChartData:', error);
-            return [{
-                name: 'Error',
-                value: 1,
-                color: '#FF0000',
-                legendFontColor: '#7F7F7F',
-                legendFontSize: 12
-            }];
-        }
-    };
-
     const renderPieChart = () => {
-        try {
-            const data = getPieChartData();
-            console.log('Pie Chart Data:', data);
-
-            if (!data || data.length === 0) {
-                return (
-                    <View style={styles.noDataContainer}>
-                        <Text style={styles.noDataText}>No data available</Text>
-                    </View>
-                );
-            }
-
-            // Prepare data for SVG PieChart
-            const pieData = data.map((item, index) => ({
-                value: item.value,
-                svg: {
-                    fill: item.color,
-                    onPress: () => console.log(`Pressed ${item.name}`)
-                },
-                key: `pie-${index}`
-            }));
-
-            const Labels = ({ slices }) => {
-                return slices.map((slice, index) => {
-                    const { pieCentroid, data } = slice;
-                    return (
-                        <SVGText
-                            key={`label-${index}`}
-                            x={pieCentroid[0]}
-                            y={pieCentroid[1]}
-                            fill={'white'}
-                            textAnchor={'middle'}
-                            alignmentBaseline={'middle'}
-                            fontSize={12}
-                        >
-                            {data.value > 0 ? `${data.value}` : ''}
-                        </SVGText>
-                    );
-                });
-            };
-
-            return (
-                <View style={styles.chartContainer}>
-                    <PieChart
-                        style={{ height: 200, width: 200 }}
-                        data={pieData}
-                        innerRadius="0%"
-                        outerRadius="80%"
-                        labelRadius={80}
-                    >
-                        <Labels />
-                    </PieChart>
-                </View>
-            );
-        } catch (error) {
-            console.error('Detailed PieChart Rendering Error:', {
-                message: error.message,
-                stack: error.stack,
-                data: data
-            });
-            return (
-                <View style={styles.noDataContainer}>
-                    <MaterialIcons name="error-outline" size={50} color="#FF0000" />
-                    <Text style={styles.noDataText}>Error rendering chart</Text>
-                    <Text style={styles.noDataText}>{error.message}</Text>
-                </View>
-            );
-        }
-    };
-
-    const renderCategoryList = () => {
-        const filteredCategories = categoryTotals.filter(cat => cat.type === activeTab);
+        const filteredCategories = categoryTotals.filter(cat => cat.type === activeTab && cat.amount > 0);
 
         if (filteredCategories.length === 0) {
             return (
                 <View style={styles.noDataContainer}>
-                    <Text style={styles.noDataText}>No categories for this period</Text>
+                    <Text style={styles.noDataText}>No data available</Text>
                 </View>
             );
         }
 
+        const total = filteredCategories.reduce((sum, cat) => sum + cat.amount, 0);
+        let currentAngle = 0;
+
         return (
-            <ScrollView style={styles.categoryList}>
-                {filteredCategories.map((category, index) => (
-                    <View key={index} style={styles.categoryItem}>
-                        <View style={styles.categoryIconContainer}>
-                            <MaterialIcons
-                                name={category.icon as any}
-                                size={24}
-                                color={category.color}
-                            />
+            <View style={styles.chartContainer}>
+                <Svg width={CHART_SIZE} height={CHART_SIZE}>
+                    <G x={CENTER} y={CENTER}>
+                        {filteredCategories.map((category, index) => {
+                            const percentage = (category.amount / total) * 100;
+                            const angle = (percentage / 100) * 360;
+                            const x1 = Math.cos((currentAngle - 90) * Math.PI / 180) * RADIUS;
+                            const y1 = Math.sin((currentAngle - 90) * Math.PI / 180) * RADIUS;
+                            const x2 = Math.cos((currentAngle + angle - 90) * Math.PI / 180) * RADIUS;
+                            const y2 = Math.sin((currentAngle + angle - 90) * Math.PI / 180) * RADIUS;
+
+                            // Calculate position for icon and label
+                            const midAngle = currentAngle + angle / 2;
+                            const iconRadius = RADIUS * 0.6;
+                            const iconX = Math.cos((midAngle - 90) * Math.PI / 180) * iconRadius;
+                            const iconY = Math.sin((midAngle - 90) * Math.PI / 180) * iconRadius;
+
+                            const path = `
+                                M 0 0
+                                L ${x1} ${y1}
+                                A ${RADIUS} ${RADIUS} 0 ${angle > 180 ? 1 : 0} 1 ${x2} ${y2}
+                                Z
+                            `;
+
+                            const result = (
+                                <G key={index}>
+                                    <Path
+                                        d={path}
+                                        fill={category.color}
+                                    />
+                                    <Circle
+                                        cx={iconX}
+                                        cy={iconY}
+                                        r={15}
+                                        fill="white"
+                                    />
+                                    <MaterialIcons
+                                        name={category.icon}
+                                        size={20}
+                                        color={category.color}
+                                        style={{
+                                            position: 'absolute',
+                                            left: CENTER + iconX - 10,
+                                            top: CENTER + iconY - 10,
+                                        }}
+                                    />
+                                </G>
+                            );
+
+                            currentAngle += angle;
+                            return result;
+                        })}
+                    </G>
+                </Svg>
+
+                <View style={styles.legendContainer}>
+                    {filteredCategories.map((category, index) => (
+                        <View key={index} style={styles.legendItem}>
+                            <View style={styles.legendIconContainer}>
+                                <MaterialIcons
+                                    name={category.icon}
+                                    size={24}
+                                    color={category.color}
+                                />
+                            </View>
+                            <View style={styles.legendTextContainer}>
+                                <Text style={styles.legendTitle}>{category.category}</Text>
+                                <Text style={styles.legendAmount}>
+                                    ${category.amount.toFixed(2)} ({category.percentage.toFixed(1)}%)
+                                </Text>
+                            </View>
                         </View>
-                        <View style={styles.categoryDetails}>
-                            <Text style={styles.categoryName}>{category.category}</Text>
-                            <Text style={styles.categoryAmount}>
-                                ${category.amount.toFixed(2)}
-                            </Text>
-                        </View>
-                        <Text style={styles.categoryPercentage}>
-                            {category.percentage.toFixed(1)}%
-                        </Text>
-                    </View>
-                ))}
-            </ScrollView>
+                    ))}
+                </View>
+            </View>
         );
     };
 
@@ -291,7 +205,7 @@ const ReportScreen = () => {
             }
         >
             <MonthYearPicker
-                currentDate={currentDate}
+                selectedDate={currentDate || new Date()}
                 onDateChange={handleDateChange}
             />
 
@@ -351,7 +265,6 @@ const ReportScreen = () => {
                     </View>
 
                     {renderPieChart()}
-                    {renderCategoryList()}
                 </>
             )}
         </ScrollView>
@@ -364,19 +277,57 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     scrollViewContent: {
-        paddingVertical: 16,
-        paddingHorizontal: 8,
+        paddingBottom: 62,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: 50,
+        minHeight: 200,
     },
     chartContainer: {
-        marginVertical: 16,
+        padding: 16,
         alignItems: 'center',
-        paddingHorizontal: 16,
+        backgroundColor: '#fff',
+        borderRadius: 8,
+        elevation: 2,
+        margin: 16,
+        marginBottom: 8,
+    },
+    legendContainer: {
+        width: '100%',
+        marginTop: 16,
+        paddingHorizontal: 8,
+    },
+    legendItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+        padding: 8,
+        backgroundColor: '#f5f5f5',
+        borderRadius: 8,
+    },
+    legendIconContainer: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: '#fff',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginRight: 12,
+    },
+    legendTextContainer: {
+        flex: 1,
+    },
+    legendTitle: {
+        fontSize: 16,
+        fontWeight: '500',
+        color: '#333',
+    },
+    legendAmount: {
+        fontSize: 14,
+        color: '#666',
+        marginTop: 2,
     },
     summaryCard: {
         margin: 16,
@@ -403,13 +354,18 @@ const styles = StyleSheet.create({
         color: '#666',
         marginBottom: 4,
     },
-    summaryValue: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
     summaryAmount: {
         fontSize: 16,
         fontWeight: '600',
+    },
+    expenseText: {
+        color: '#F44336',
+    },
+    incomeText: {
+        color: '#4CAF50',
+    },
+    investmentText: {
+        color: '#2196F3',
     },
     totalRow: {
         flexDirection: 'row',
@@ -433,7 +389,7 @@ const styles = StyleSheet.create({
     },
     tab: {
         flex: 1,
-        paddingVertical: 10,
+        paddingVertical: 8,
         alignItems: 'center',
         borderBottomWidth: 2,
         borderBottomColor: 'transparent',
@@ -449,57 +405,15 @@ const styles = StyleSheet.create({
         color: '#2196F3',
         fontWeight: '500',
     },
-    categoryList: {
-        paddingHorizontal: 16,
-    },
-    categoryItem: {
-        marginBottom: 12,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 8,
-        padding: 12,
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    categoryIconContainer: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#fff',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginRight: 12,
-    },
-    categoryDetails: {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-    },
-    categoryName: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#333',
-    },
-    categoryAmount: {
-        fontSize: 14,
-        color: '#666',
-    },
-    categoryPercentage: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#333',
-    },
     noDataContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
         padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 200,
     },
     noDataText: {
         fontSize: 16,
         color: '#666',
-        marginTop: 10,
-        textAlign: 'center',
     },
 });
 

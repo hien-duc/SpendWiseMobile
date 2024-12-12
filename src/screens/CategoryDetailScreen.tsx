@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Animated } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { BarChart } from 'react-native-chart-kit';
 import { Dimensions } from 'react-native';
 import { reportsService } from '../api/reportsService';
-import { format } from 'date-fns';
 import { useAuth } from '../context/AuthContext';
 
 const { width } = Dimensions.get('window');
@@ -17,6 +15,7 @@ const CategoryDetailScreen = () => {
     const { category, month, year } = route.params;
     const [monthlyData, setMonthlyData] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [maxAmount, setMaxAmount] = useState(0);
 
     const fetchCategoryData = async () => {
         try {
@@ -27,19 +26,24 @@ const CategoryDetailScreen = () => {
 
             setLoading(true);
             const trends = await reportsService.getTrends('monthly');
-            setMonthlyData(trends.filter(t => t.category === category));
+            const filteredData = trends.filter(t => t.category === category);
+            setMonthlyData(filteredData);
+
+            // Calculate max amount for scaling
+            const max = Math.max(...filteredData.map(d => d.amount), 1);
+            setMaxAmount(max);
         } catch (error) {
             console.error('Error fetching category data:', error);
             if (error.response?.status === 401) {
                 Alert.alert(
-                    'Session Expired', 
-                    'Your session has expired. Please log in again.', 
-                    [{ 
-                        text: 'OK', 
+                    'Session Expired',
+                    'Your session has expired. Please log in again.',
+                    [{
+                        text: 'OK',
                         onPress: async () => {
                             await logout();
                             navigation.navigate('Login');
-                        } 
+                        }
                     }]
                 );
             } else {
@@ -54,6 +58,30 @@ const CategoryDetailScreen = () => {
         fetchCategoryData();
     }, [isAuthenticated]);
 
+    const renderBar = (amount: number, index: number, label: string) => {
+        const barHeight = (amount / maxAmount) * 200; // Max height of 200
+
+        return (
+            <View key={index} style={styles.barContainer}>
+                <View style={styles.barWrapper}>
+                    <View
+                        style={[
+                            styles.bar,
+                            {
+                                height: barHeight,
+                                backgroundColor: '#FF5722'
+                            }
+                        ]}
+                    />
+                </View>
+                <Text style={styles.barLabel}>{label}</Text>
+                <Text style={styles.barValue}>
+                    ₩{amount.toLocaleString()}
+                </Text>
+            </View>
+        );
+    };
+
     if (loading) {
         return (
             <View style={styles.loadingContainer}>
@@ -61,6 +89,11 @@ const CategoryDetailScreen = () => {
             </View>
         );
     }
+
+    const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const chartData = monthlyData.length > 0
+        ? monthlyData.map(d => d.amount)
+        : [0, 0, 0, 0, 70000, 23535];
 
     return (
         <ScrollView style={styles.container}>
@@ -73,54 +106,23 @@ const CategoryDetailScreen = () => {
             </View>
 
             <View style={styles.chartContainer}>
-                <BarChart
-                    data={{
-                        labels: ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                        datasets: [{
-                            data: monthlyData.map(d => d.amount) || [0, 0, 0, 0, 70000, 23535]
-                        }]
-                    }}
-                    width={width - 32}
-                    height={220}
-                    yAxisLabel=""
-                    yAxisSuffix="₩"
-                    chartConfig={{
-                        backgroundColor: '#FFF',
-                        backgroundGradientFrom: '#FFF',
-                        backgroundGradientTo: '#FFF',
-                        decimalPlaces: 0,
-                        color: (opacity = 1) => `rgba(255, 87, 34, ${opacity})`,
-                        labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                        style: {
-                            borderRadius: 16
-                        },
-                        propsForDots: {
-                            r: "6",
-                            strokeWidth: "2",
-                            stroke: "#FF5722"
-                        }
-                    }}
-                    style={{
-                        marginVertical: 8,
-                        borderRadius: 16
-                    }}
-                />
+                <View style={styles.chart}>
+                    {chartData.map((amount, index) =>
+                        renderBar(amount, index, months[index])
+                    )}
+                </View>
             </View>
 
-            <View style={styles.transactionList}>
-                <View style={styles.transactionHeader}>
-                    <View style={styles.dateInfo}>
-                        <Text style={styles.dateText}>12.7 2024 (Sat)</Text>
+            <View style={styles.summaryContainer}>
+                <Text style={styles.summaryTitle}>Summary</Text>
+                {monthlyData.map((data, index) => (
+                    <View key={index} style={styles.summaryRow}>
+                        <Text style={styles.summaryMonth}>{months[index]}</Text>
+                        <Text style={styles.summaryAmount}>
+                            ₩{data.amount.toLocaleString()}
+                        </Text>
                     </View>
-                    <Text style={styles.amountText}>-23,535₩</Text>
-                </View>
-                <View style={styles.transactionItem}>
-                    <View style={styles.categoryInfo}>
-                        <MaterialIcons name="restaurant" size={24} color="#FF5722" />
-                        <Text style={styles.categoryName}>Food</Text>
-                    </View>
-                    <Text style={styles.transactionAmount}>23,535₩</Text>
-                </View>
+                ))}
             </View>
         </ScrollView>
     );
@@ -131,75 +133,89 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#F5F5F5',
     },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        padding: 16,
+        backgroundColor: '#FFF',
+        elevation: 2,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        color: '#333',
+    },
     loadingContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: '#FFF',
-    },
-    title: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: '#333',
-    },
     chartContainer: {
         margin: 16,
         padding: 16,
         backgroundColor: '#FFF',
-        borderRadius: 12,
+        borderRadius: 8,
         elevation: 2,
     },
-    transactionList: {
-        backgroundColor: '#FFF',
-        borderRadius: 12,
+    chart: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        justifyContent: 'space-between',
+        height: 250,
+        paddingTop: 20,
+    },
+    barContainer: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    barWrapper: {
+        height: 200,
+        justifyContent: 'flex-end',
+    },
+    bar: {
+        width: 20,
+        borderTopLeftRadius: 4,
+        borderTopRightRadius: 4,
+    },
+    barLabel: {
+        marginTop: 8,
+        fontSize: 12,
+        color: '#666',
+    },
+    barValue: {
+        fontSize: 10,
+        color: '#666',
+        marginTop: 4,
+    },
+    summaryContainer: {
         margin: 16,
         padding: 16,
+        backgroundColor: '#FFF',
+        borderRadius: 8,
+        elevation: 2,
     },
-    transactionHeader: {
+    summaryTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginBottom: 12,
+        color: '#333',
+    },
+    summaryRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingBottom: 12,
+        paddingVertical: 8,
         borderBottomWidth: 1,
-        borderBottomColor: '#F0F0F0',
+        borderBottomColor: '#EEE',
     },
-    dateInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    dateText: {
+    summaryMonth: {
         fontSize: 14,
         color: '#666',
     },
-    amountText: {
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#FF5722',
-    },
-    transactionItem: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingVertical: 12,
-    },
-    categoryInfo: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    categoryName: {
-        marginLeft: 12,
-        fontSize: 16,
+    summaryAmount: {
+        fontSize: 14,
         color: '#333',
-    },
-    transactionAmount: {
-        fontSize: 16,
-        color: '#333',
+        fontWeight: '500',
     },
 });
 
