@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 import AnnualReportScreen from './AnnualReportScreen';
 import CategoryAnnualReportScreen from './CategoryAnnualReportScreen';
 import AllTimeReportScreen from './AllTimeReportScreen';
@@ -9,16 +9,12 @@ import AllTimeCategoryReportScreen from './AllTimeCategoryReportScreen';
 import FinancialGoalsScreen from './FinancialGoalsScreen';
 
 const OtherScreen = () => {
-    const [currentScreen, setCurrentScreen] = useState('main');
-
-    const handleBack = () => {
-        setCurrentScreen('main');
-    };
+    const navigation = useNavigation();
 
     const renderItem = (icon: string, title: string, screenName: string) => (
         <TouchableOpacity 
             style={styles.item}
-            onPress={() => setCurrentScreen(screenName)}
+            onPress={() => navigation.navigate(screenName)}
         >
             <View style={styles.itemLeft}>
                 <MaterialIcons name={icon} size={24} color="#666" />
@@ -28,52 +24,25 @@ const OtherScreen = () => {
         </TouchableOpacity>
     );
 
-    // Render the appropriate screen based on currentScreen state
-    const renderScreen = () => {
-        const renderSubScreen = (Screen: React.ComponentType<any>) => (
-            <GestureHandlerRootView style={styles.gestureContainer}>
-                <Screen onBack={handleBack} />
-            </GestureHandlerRootView>
-        );
-
-        switch (currentScreen) {
-            case 'annual':
-                return renderSubScreen(AnnualReportScreen);
-            case 'categoryAnnual':
-                return renderSubScreen(CategoryAnnualReportScreen);
-            case 'allTime':
-                return renderSubScreen(AllTimeReportScreen);
-            case 'allTimeCategory':
-                return renderSubScreen(AllTimeCategoryReportScreen);
-            case 'goals':
-                return renderSubScreen(FinancialGoalsScreen);
-            default:
-                return (
-                    <View style={styles.container}>
-                        <ScrollView style={styles.content}>
-                            <View style={styles.section}>
-                                {renderItem('bar-chart', 'Annual report', 'annual')}
-                                {renderItem('pie-chart', 'Category annual report', 'categoryAnnual')}
-                                {renderItem('timeline', 'All time report', 'allTime')}
-                                {renderItem('donut-large', 'All time category report', 'allTimeCategory')}
-                                {renderItem('flag', 'Financial Goals', 'goals')}
-                            </View>
-                        </ScrollView>
-                    </View>
-                );
-        }
-    };
-
-    return renderScreen();
+    return (
+        <View style={styles.container}>
+            <ScrollView style={styles.content}>
+                <View style={styles.section}>
+                    {renderItem('bar-chart', 'Annual report', 'AnnualReport')}
+                    {renderItem('pie-chart', 'Category annual report', 'CategoryAnnualReport')}
+                    {renderItem('timeline', 'All time report', 'AllTimeReport')}
+                    {renderItem('donut-large', 'All time category report', 'AllTimeCategoryReport')}
+                    {renderItem('flag', 'Financial Goals', 'FinancialGoals')}
+                </View>
+            </ScrollView>
+        </View>
+    );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#F5F5F5',
-    },
-    gestureContainer: {
-        flex: 1,
     },
     content: {
         flex: 1,

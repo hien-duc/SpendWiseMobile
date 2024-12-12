@@ -1,66 +1,56 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
 
-interface Props {
-    onBack?: () => void;
-}
-
-const AnnualReportScreen: React.FC<Props> = ({ onBack }) => {
-    const gesture = Gesture.Fling()
-        .direction(Gesture.DIRECTION_RIGHT)
-        .onEnd(() => {
-            if (onBack) onBack();
-        });
+const AnnualReportScreen = () => {
+    const navigation = useNavigation();
 
     return (
-        <GestureDetector gesture={gesture}>
-            <View style={styles.container}>
-                <View style={styles.header}>
-                    <TouchableOpacity
-                        style={styles.backButton}
-                        onPress={onBack}
-                    >
-                        <MaterialIcons name="arrow-back" size={24} color="#333" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Annual Report</Text>
-                    <View style={styles.placeholder} />
-                </View>
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => navigation.goBack()}
+                >
+                    <MaterialIcons name="arrow-back" size={24} color="#333" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>Annual Report</Text>
+                <View style={styles.placeholder} />
+            </View>
 
-                <ScrollView style={styles.content}>
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>2024 Summary</Text>
-                        <View style={styles.summaryCard}>
-                            <View style={styles.summaryItem}>
-                                <Text style={styles.summaryLabel}>Total Income</Text>
-                                <Text style={[styles.summaryValue, styles.incomeText]}>$25,000</Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Text style={styles.summaryLabel}>Total Expenses</Text>
-                                <Text style={[styles.summaryValue, styles.expenseText]}>$18,500</Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Text style={styles.summaryLabel}>Net Savings</Text>
-                                <Text style={[styles.summaryValue, styles.savingsText]}>$6,500</Text>
-                            </View>
+            <ScrollView style={styles.content}>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>2024 Summary</Text>
+                    <View style={styles.summaryCard}>
+                        <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>Total Income</Text>
+                            <Text style={[styles.summaryValue, styles.incomeText]}>$25,000</Text>
+                        </View>
+                        <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>Total Expenses</Text>
+                            <Text style={[styles.summaryValue, styles.expenseText]}>$18,500</Text>
+                        </View>
+                        <View style={styles.summaryItem}>
+                            <Text style={styles.summaryLabel}>Net Savings</Text>
+                            <Text style={[styles.summaryValue, styles.savingsText]}>$6,500</Text>
                         </View>
                     </View>
+                </View>
 
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Monthly Breakdown</Text>
-                        {/* Add your monthly breakdown chart/data here */}
-                        <Text style={styles.placeholderText}>Monthly data visualization will be shown here</Text>
-                    </View>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Monthly Breakdown</Text>
+                    {/* Add your monthly breakdown chart/data here */}
+                    <Text style={styles.placeholderText}>Monthly data visualization will be shown here</Text>
+                </View>
 
-                    <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Top Categories</Text>
-                        {/* Add your top categories list here */}
-                        <Text style={styles.placeholderText}>Top spending categories will be shown here</Text>
-                    </View>
-                </ScrollView>
-            </View>
-        </GestureDetector>
+                <View style={styles.section}>
+                    <Text style={styles.sectionTitle}>Top Categories</Text>
+                    {/* Add your top categories list here */}
+                    <Text style={styles.placeholderText}>Top spending categories will be shown here</Text>
+                </View>
+            </ScrollView>
+        </View>
     );
 };
 
