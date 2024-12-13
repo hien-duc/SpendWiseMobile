@@ -1,4 +1,5 @@
-import { supabase } from '../../supabase';
+import { API_URL } from '../config';
+import { Session } from '@supabase/supabase-js';
 
 interface AnnualTransactionsReport {
     month_number: number;
@@ -36,56 +37,132 @@ interface AllTimeBalanceReport {
 }
 
 class OtherService {
-    async getAnnualTransactionsReport(year: number): Promise<AnnualTransactionsReport[]> {
-        const { data, error } = await supabase
-            .rpc('get_annual_transactions_report', {
-                year_param: year
-            });
+    private getAuthHeaders(session: Session | null): HeadersInit {
+        if (!session?.access_token) {
+            throw new Error('Not authenticated');
+        }
 
-        if (error) {
+        return {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        };
+    }
+
+    async getAnnualTransactionsReport(year: number, session: Session | null): Promise<AnnualTransactionsReport[]> {
+        try {
+            const headers = this.getAuthHeaders(session);
+            console.log('Making request to:', `${API_URL}/api/other/annual-transactions/${year}`);
+            console.log('With headers:', headers);
+            
+            const response = await fetch(`${API_URL}/api/other/annual-transactions/${year}`, {
+                headers
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`Failed to fetch annual transactions report: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Received data:', data);
+            return data;
+        } catch (error) {
             console.error('Error fetching annual transactions report:', error);
             throw error;
         }
-
-        return data || [];
     }
 
-    async getAnnualCategoriesSummary(year: number): Promise<CategorySummary[]> {
-        const { data, error } = await supabase
-            .rpc('get_annual_categories_summary', {
-                year_param: year
+    async getAnnualCategoriesSummary(year: number, session: Session | null): Promise<CategorySummary[]> {
+        try {
+            const headers = this.getAuthHeaders(session);
+            console.log('Making request to:', `${API_URL}/api/other/annual-categories/${year}`);
+            console.log('With headers:', headers);
+            
+            const response = await fetch(`${API_URL}/api/other/annual-categories/${year}`, {
+                headers
             });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`Failed to fetch annual categories summary: ${response.status} ${response.statusText}`);
+            }
 
-        if (error) {
+            const data = await response.json();
+            console.log('Received data:', data);
+            return data;
+        } catch (error) {
             console.error('Error fetching annual categories summary:', error);
             throw error;
         }
-
-        return data || [];
     }
 
-    async getAllTimeBalanceReport(): Promise<AllTimeBalanceReport[]> {
-        const { data, error } = await supabase
-            .rpc('get_all_time_balance_report');
+    async getAllTimeBalanceReport(session: Session | null): Promise<AllTimeBalanceReport[]> {
+        try {
+            const headers = this.getAuthHeaders(session);
+            console.log('Making request to:', `${API_URL}/api/other/all-time-balance`);
+            console.log('With headers:', headers);
+            
+            const response = await fetch(`${API_URL}/api/other/all-time-balance`, {
+                headers
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`Failed to fetch all-time balance report: ${response.status} ${response.statusText}`);
+            }
 
-        if (error) {
+            const data = await response.json();
+            console.log('Received data:', data);
+            return data;
+        } catch (error) {
             console.error('Error fetching all-time balance report:', error);
             throw error;
         }
-
-        return data || [];
     }
 
-    async getAllTimeCategoriesSummary(): Promise<CategorySummary[]> {
-        const { data, error } = await supabase
-            .rpc('get_all_time_categories_summary');
+    async getAllTimeCategoriesSummary(session: Session | null): Promise<CategorySummary[]> {
+        try {
+            const headers = this.getAuthHeaders(session);
+            console.log('Making request to:', `${API_URL}/api/other/all-time-categories`);
+            console.log('With headers:', headers);
+            
+            const response = await fetch(`${API_URL}/api/other/all-time-categories`, {
+                headers
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`Failed to fetch all-time categories summary: ${response.status} ${response.statusText}`);
+            }
 
-        if (error) {
+            const data = await response.json();
+            console.log('Received data:', data);
+            return data;
+        } catch (error) {
             console.error('Error fetching all-time categories summary:', error);
             throw error;
         }
-
-        return data || [];
     }
 }
 
