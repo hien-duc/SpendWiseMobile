@@ -1,6 +1,6 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer} from '@react-navigation/native';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import AuthNavigator from './AuthNavigator';
 import TabNavigator from './TabNavigator';
@@ -15,57 +15,69 @@ import CategoryAnnualReportScreen from '../screens/CategoryAnnualReportScreen';
 import AllTimeReportScreen from '../screens/AllTimeReportScreen';
 import AllTimeCategoryReportScreen from '../screens/AllTimeCategoryReportScreen';
 import FinancialGoalsScreen from '../screens/FinancialGoalsScreen';
+import HomeScreen from '../screens/HomeScreen';
+import TransactionEditScreen from '../screens/TransactionEditScreen';
 
 const Stack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen 
-          name="Auth" 
+      <Stack.Navigator screenOptions={{headerShown: false}}>
+        <Stack.Screen
+          name="Auth"
           component={AuthNavigator}
           options={{
             gestureEnabled: false,
           }}
         />
-        <Stack.Screen 
-          name="MainTabs" 
+        <Stack.Screen
+          name="MainTabs"
           component={TabNavigator}
           options={{
             gestureEnabled: false,
           }}
         />
-        <Stack.Screen 
-          name="CategoryManagement" 
+        <Stack.Screen
+          name="CategoryManagement"
           component={CategoryManagementScreen}
-          options={{ headerShown: false }}
-          initialParams={{ initialType: undefined }}
+          options={{headerShown: false}}
+          initialParams={{initialType: undefined}}
         />
-        <Stack.Screen 
-          name="CreateCategory" 
+        <Stack.Screen
+          name="CreateCategory"
           component={CreateCategoryScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="EditInitialBalance" 
+        <Stack.Screen
+          name="EditInitialBalance"
           component={EditInitialBalanceScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="Help" 
+        <Stack.Screen
+          name="Help"
           component={HelpScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="PrivacyPolicy" 
+        <Stack.Screen
+          name="PrivacyPolicy"
           component={PrivacyPolicyScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="About" 
+        <Stack.Screen
+          name="About"
           component={AboutScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="HomeScreen"
+          component={HomeScreen}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="TransactionEditScreen"
+          component={TransactionEditScreen}
+          options={{headerShown: false}}
         />
         <Stack.Screen 
           name="AnnualReport" 

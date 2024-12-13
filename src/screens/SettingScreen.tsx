@@ -51,7 +51,7 @@ const SettingsScreen = () => {
                             await logout();
                             navigation.reset({
                                 index: 0,
-                                routes: [{ name: 'Auth', params: { screen: 'Login' } }],
+                                routes: [{ name: 'Auth', params: { screen: 'LoginScreen' } }],
                             });
                         }
                     }
