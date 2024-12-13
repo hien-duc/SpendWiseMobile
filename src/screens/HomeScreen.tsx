@@ -22,6 +22,13 @@ function HomeScreen({navigation}): JSX.Element {
   const {isAuthenticated: authIsAuthenticated} = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
+  const formatCurrency = (amount: number) => {
+    return `$${Math.abs(amount).toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
   const loadTransaction = async () => {
     try {
       const fetchedTransactions = await transactionsService.getAll();
@@ -225,22 +232,22 @@ function HomeScreen({navigation}): JSX.Element {
     const investment = monthTransactions
       .filter(t => t.type === 'investment')
       .reduce((sum, t) => sum + t.amount, 0);
-    const remaining = income - expense + investment;
+    const remaining = income - expense - investment;
 
     return (
       <View style={styles.summary}>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Income</Text>
-          <Text style={[styles.summaryAmount, styles.income]}>+{income}</Text>
+          <Text style={[styles.summaryAmount, styles.income]}>+{formatCurrency(income)}</Text>
         </View>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Expense</Text>
-          <Text style={[styles.summaryAmount, styles.expense]}>-{expense}</Text>
+          <Text style={[styles.summaryAmount, styles.expense]}>-{formatCurrency(expense)}</Text>
         </View>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Investment</Text>
           <Text style={[styles.summaryAmount, styles.investment]}>
-            {investment}
+            {formatCurrency(investment)}
           </Text>
         </View>
         <View style={styles.summaryItem}>
@@ -250,7 +257,7 @@ function HomeScreen({navigation}): JSX.Element {
               styles.summaryAmount,
               {color: remaining >= 0 ? '#4CAF50' : '#FF5252'},
             ]}>
-            {remaining}
+            {formatCurrency(remaining)}
           </Text>
         </View>
       </View>
@@ -353,7 +360,7 @@ function HomeScreen({navigation}): JSX.Element {
                       : transaction.type === 'expense'
                       ? '-'
                       : ''}
-                    {transaction.amount}
+                    {formatCurrency(transaction.amount)}
                   </Text>
                 </TouchableOpacity>
               </View>
