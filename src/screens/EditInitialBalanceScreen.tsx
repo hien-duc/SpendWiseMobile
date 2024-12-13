@@ -46,7 +46,7 @@ const EditInitialBalanceScreen = () => {
         // Clean the balance string and convert to number
         const cleanBalance = balance.replace(/[^0-9.-]/g, '');
         const numericBalance = parseFloat(cleanBalance);
-        
+
         if (isNaN(numericBalance)) {
             Alert.alert('Error', 'Please enter a valid number');
             return;

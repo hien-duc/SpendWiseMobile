@@ -31,7 +31,7 @@ const AboutScreen = () => {
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>About SpendWise</Text>
                     <Text style={styles.sectionContent}>
-                        SpendWise is your personal finance companion, designed to help you make smarter financial decisions. 
+                        SpendWise is your personal finance companion, designed to help you make smarter financial decisions.
                         Track your expenses, monitor your investments, and achieve your financial goals with ease.
                     </Text>
                 </View>

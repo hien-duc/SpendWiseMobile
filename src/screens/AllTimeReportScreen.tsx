@@ -12,10 +12,9 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {LineChart} from 'react-native-chart-kit';
 import {otherService} from '../api/otherService';
 import {useAuth} from '../context/AuthContext';
+import {useNavigation} from '@react-navigation/native';
 
-interface Props {
-  onBack?: () => void;
-}
+interface Props {}
 
 interface AllTimeBalanceReport {
   income_amount: number;
@@ -34,7 +33,8 @@ interface YearlyData {
   net_amount: number;
 }
 
-const AllTimeReportScreen: React.FC<Props> = ({onBack}) => {
+const AllTimeReportScreen: React.FC<Props> = () => {
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [balanceReport, setBalanceReport] =
@@ -134,7 +134,9 @@ const AllTimeReportScreen: React.FC<Props> = ({onBack}) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={onBack}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => navigation.goBack()}>
           <MaterialIcons name="arrow-back" size={24} color="#333" />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>All Time Report</Text>

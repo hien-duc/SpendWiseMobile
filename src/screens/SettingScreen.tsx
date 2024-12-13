@@ -79,8 +79,8 @@ const SettingsScreen = () => {
     };
 
     const renderSettingItem = (icon: string, title: string, value?: any, onPress?: () => void, rightComponent?: React.ReactNode) => (
-        <TouchableOpacity 
-            style={styles.settingItem} 
+        <TouchableOpacity
+            style={styles.settingItem}
             onPress={onPress}
             disabled={!onPress}
         >
@@ -101,16 +101,16 @@ const SettingsScreen = () => {
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Account</Text>
                 {renderSettingItem(
-                    'account-balance', 
-                    'Initial Balance', 
-                    loading ? 'Loading...' : `$${initialBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 
+                    'account-balance',
+                    'Initial Balance',
+                    loading ? 'Loading...' : `$${initialBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                     () => navigation.navigate('EditInitialBalance')
                 )}
             </View>
 
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Support</Text>
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.settingItem}
                     onPress={() => navigation.navigate('Help')}
                 >
@@ -121,7 +121,7 @@ const SettingsScreen = () => {
                     <MaterialIcons name="chevron-right" size={24} color="#666" />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.settingItem}
                     onPress={() => navigation.navigate('PrivacyPolicy')}
                 >
@@ -132,7 +132,7 @@ const SettingsScreen = () => {
                     <MaterialIcons name="chevron-right" size={24} color="#666" />
                 </TouchableOpacity>
 
-                <TouchableOpacity 
+                <TouchableOpacity
                     style={styles.settingItem}
                     onPress={() => navigation.navigate('About')}
                 >

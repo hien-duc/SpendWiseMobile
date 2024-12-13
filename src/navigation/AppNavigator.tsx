@@ -17,6 +17,7 @@ import AllTimeCategoryReportScreen from '../screens/AllTimeCategoryReportScreen'
 import FinancialGoalsScreen from '../screens/FinancialGoalsScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TransactionEditScreen from '../screens/TransactionEditScreen';
+import CategoryDetailScreen from '../screens/CategoryDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -79,30 +80,35 @@ const AppNavigator = () => {
           component={TransactionEditScreen}
           options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="AnnualReport" 
+        <Stack.Screen
+          name="AnnualReport"
           component={AnnualReportScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="CategoryAnnualReport" 
+        <Stack.Screen
+          name="CategoryAnnualReport"
           component={CategoryAnnualReportScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="AllTimeReport" 
+        <Stack.Screen
+          name="AllTimeReport"
           component={AllTimeReportScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="AllTimeCategoryReport" 
+        <Stack.Screen
+          name="AllTimeCategoryReport"
           component={AllTimeCategoryReportScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
         />
-        <Stack.Screen 
-          name="FinancialGoals" 
+        <Stack.Screen
+          name="FinancialGoals"
           component={FinancialGoalsScreen}
-          options={{ headerShown: false }}
+          options={{headerShown: false}}
+        />
+        <Stack.Screen
+          name="CategoryDetailScreen"
+          component={CategoryDetailScreen}
+          options={{headerShown: false}}
         />
       </Stack.Navigator>
     </NavigationContainer>

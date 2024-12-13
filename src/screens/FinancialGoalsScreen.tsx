@@ -1,12 +1,13 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
-    onBack?: () => void;
 }
 
-const FinancialGoalsScreen: React.FC<Props> = ({ onBack }) => {
+const FinancialGoalsScreen: React.FC<Props> = () => {
+    const navigation = useNavigation();
     const renderGoalItem = (icon: string, title: string, target: string, current: string, deadline: string) => (
         <View style={styles.goalItem}>
             <View style={styles.goalHeader}>
@@ -22,11 +23,11 @@ const FinancialGoalsScreen: React.FC<Props> = ({ onBack }) => {
                     <Text style={styles.goalTarget}>Target: {target}</Text>
                 </View>
                 <View style={styles.progressBar}>
-                    <View 
+                    <View
                         style={[
-                            styles.progressFill, 
+                            styles.progressFill,
                             { width: `${Math.min(parseInt(current.replace(/[^0-9]/g, '')) / parseInt(target.replace(/[^0-9]/g, '')) * 100, 100)}%` }
-                        ]} 
+                        ]}
                     />
                 </View>
             </View>
@@ -38,7 +39,7 @@ const FinancialGoalsScreen: React.FC<Props> = ({ onBack }) => {
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={onBack}
+                    onPress={() => navigation.goBack()}
                 >
                     <MaterialIcons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>

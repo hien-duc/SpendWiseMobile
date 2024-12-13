@@ -7,7 +7,7 @@ const OtherScreen = () => {
     const navigation = useNavigation();
 
     const renderItem = (icon: string, title: string, screenName: string) => (
-        <TouchableOpacity 
+        <TouchableOpacity
             style={styles.item}
             onPress={() => navigation.navigate(screenName)}
         >

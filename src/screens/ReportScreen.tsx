@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, RefreshCon
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { reportsService } from '../api/reportsService';
-import { format } from 'date-fns';
 import { Dimensions } from 'react-native';
 import { useAuth } from '../context/AuthContext';
 import MonthYearPicker from '../components/MonthYearPicker';
@@ -21,6 +20,7 @@ interface CategoryTotal {
     icon: string;
     percentage: number;
     type: 'expense' | 'income' | 'investment';
+    categoryId?: string;
 }
 
 const ReportScreen = () => {
@@ -38,7 +38,7 @@ const ReportScreen = () => {
     const fetchReportData = async () => {
         try {
             if (!isAuthenticated) {
-                navigation.navigate('Login');
+                navigation.navigate('LoginScreen');
                 return;
             }
 
@@ -56,7 +56,8 @@ const ReportScreen = () => {
                 setExpenseTotal(firstRow.total_expense);
                 setIncomeTotal(firstRow.total_income);
                 setInvestmentTotal(firstRow.total_investment);
-                setNetBalance(firstRow.total_net_balance);
+                setNetBalance(firstRow.net_balance);
+
 
                 const transformedCategories = reportData.map(item => ({
                     category: item.category_name,
@@ -64,7 +65,8 @@ const ReportScreen = () => {
                     color: item.category_color || '#CCCCCC',
                     icon: item.category_icon || 'help-outline',
                     percentage: item.category_percentage,
-                    type: item.category_type
+                    type: item.category_type,
+                    categoryId: item.category_id
                 }));
 
                 console.log('Transformed Categories:', transformedCategories);
@@ -97,19 +99,86 @@ const ReportScreen = () => {
         fetchReportData();
     };
 
+    const handleCategoryClick = (category: CategoryTotal) => {
+        navigation.navigate('CategoryDetailScreen', {
+            categoryId: category.categoryId,
+            categoryName: category.category,
+            categoryColor: category.color,
+            categoryIcon: category.icon,
+            year: currentDate.getFullYear()
+        });
+    };
+
     const renderPieChart = () => {
+        console.log('Rendering Pie Chart');
         const filteredCategories = categoryTotals.filter(cat => cat.type === activeTab && cat.amount > 0);
+
+        console.log('Filtered Categories:', filteredCategories);
 
         if (filteredCategories.length === 0) {
             return (
                 <View style={styles.noDataContainer}>
-                    <Text style={styles.noDataText}>No data available</Text>
+                    <MaterialIcons name="donut-large" size={48} color="#ccc" />
+                    <Text style={styles.noDataText}>No data available for this period</Text>
                 </View>
             );
         }
 
         const total = filteredCategories.reduce((sum, cat) => sum + cat.amount, 0);
         let currentAngle = 0;
+
+        // Handle single category case
+        if (filteredCategories.length === 1) {
+            return (
+                <View style={styles.chartContainer}>
+                    <Svg width={CHART_SIZE} height={CHART_SIZE}>
+                        <G x={CENTER} y={CENTER}>
+                            <Circle
+                                r={RADIUS}
+                                fill={filteredCategories[0].color}
+                            />
+                            <Circle
+                                cx={0}
+                                cy={0}
+                                r={15}
+                                fill="white"
+                            />
+                            <MaterialIcons
+                                name={filteredCategories[0].icon}
+                                size={20}
+                                color={filteredCategories[0].color}
+                                style={{
+                                    position: 'absolute',
+                                    left: CENTER - 10,
+                                    top: CENTER - 10,
+                                }}
+                            />
+                        </G>
+                    </Svg>
+
+                    <View style={styles.legendContainer}>
+                        <TouchableOpacity 
+                            style={styles.legendItem}
+                            onPress={() => handleCategoryClick(filteredCategories[0])}
+                        >
+                            <View style={styles.legendIconContainer}>
+                                <MaterialIcons
+                                    name={filteredCategories[0].icon}
+                                    size={24}
+                                    color={filteredCategories[0].color}
+                                />
+                            </View>
+                            <View style={styles.legendTextContainer}>
+                                <Text style={styles.legendTitle}>{filteredCategories[0].category}</Text>
+                                <Text style={styles.legendAmount}>
+                                    ${filteredCategories[0].amount.toFixed(2)} (100%)
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            );
+        }
 
         return (
             <View style={styles.chartContainer}>
@@ -169,7 +238,11 @@ const ReportScreen = () => {
 
                 <View style={styles.legendContainer}>
                     {filteredCategories.map((category, index) => (
-                        <View key={index} style={styles.legendItem}>
+                        <TouchableOpacity 
+                            key={index}
+                            style={styles.legendItem}
+                            onPress={() => handleCategoryClick(category)}
+                        >
                             <View style={styles.legendIconContainer}>
                                 <MaterialIcons
                                     name={category.icon}
@@ -183,7 +256,7 @@ const ReportScreen = () => {
                                     ${category.amount.toFixed(2)} ({category.percentage.toFixed(1)}%)
                                 </Text>
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     ))}
                 </View>
             </View>
@@ -199,73 +272,66 @@ const ReportScreen = () => {
                 <RefreshControl
                     refreshing={loading}
                     onRefresh={fetchReportData}
-                    colors={['#2196F3']}
-                    tintColor="#2196F3"
                 />
             }
         >
-            <MonthYearPicker
-                selectedDate={currentDate || new Date()}
-                onDateChange={handleDateChange}
-            />
+            <View style={styles.header}>
+                <MonthYearPicker
+                    selectedDate={currentDate}
+                    onDateChange={handleDateChange}
+                />
+            </View>
+
+            <View style={styles.summaryContainer}>
+                <View style={[styles.summaryCard, { backgroundColor: '#E8F5E9' }]}>
+                    <Text style={styles.summaryLabel}>Income</Text>
+                    {/* can use to toFixed(2) to display 0.00 */}
+                    <Text style={[styles.summaryAmount, { color: '#2E7D32' }]}>${incomeTotal}</Text>
+                </View>
+                <View style={[styles.summaryCard, { backgroundColor: '#FFEBEE' }]}>
+                    <Text style={styles.summaryLabel}>Expense</Text>
+                    <Text style={[styles.summaryAmount, { color: '#C62828' }]}>${expenseTotal}</Text>
+                </View>
+                <View style={[styles.summaryCard, { backgroundColor: '#E3F2FD' }]}>
+                    <Text style={styles.summaryLabel}>Investment</Text>
+                    <Text style={[styles.summaryAmount, { color: '#1565C0' }]}>${investmentTotal}</Text>
+                </View>
+            </View>
+
+            <View style={styles.netBalanceContainer}>
+                <Text style={styles.netBalanceLabel}>Net Balance</Text>
+                <Text style={[styles.netBalanceAmount, { color: netBalance >= 0 ? '#2E7D32' : '#C62828' }]}>
+                    ${netBalance ? netBalance : '0.00'}
+                </Text>
+            </View>
+
+            <View style={styles.tabContainer}>
+                {(['expense', 'income', 'investment'] as const).map((tab) => (
+                    <TouchableOpacity
+                        key={tab}
+                        style={[
+                            styles.tab,
+                            activeTab === tab && styles.activeTab
+                        ]}
+                        onPress={() => setActiveTab(tab)}
+                    >
+                        <Text style={[
+                            styles.tabText,
+                            activeTab === tab && styles.activeTabText
+                        ]}>
+                            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                        </Text>
+                    </TouchableOpacity>
+                ))}
+            </View>
 
             {loading ? (
                 <View style={styles.loadingContainer}>
-                    <ActivityIndicator size="large" color="#2196F3" />
+                    <ActivityIndicator size="large" color="#6200ee" />
+                    <Text style={styles.loadingText}>Loading data...</Text>
                 </View>
             ) : (
-                <>
-                    <View style={styles.summaryCard}>
-                        <View style={styles.summaryRow}>
-                            <View style={styles.summaryItem}>
-                                <Text style={styles.summaryLabel}>Expense</Text>
-                                <Text style={[styles.summaryAmount, styles.expenseText]}>
-                                    -{expenseTotal.toLocaleString()}$
-                                </Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Text style={styles.summaryLabel}>Income</Text>
-                                <Text style={[styles.summaryAmount, styles.incomeText]}>
-                                    +{incomeTotal.toLocaleString()}$
-                                </Text>
-                            </View>
-                            <View style={styles.summaryItem}>
-                                <Text style={styles.summaryLabel}>Investment</Text>
-                                <Text style={[styles.summaryAmount, styles.investmentText]}>
-                                    {investmentTotal.toLocaleString()}$
-                                </Text>
-                            </View>
-                        </View>
-                        <View style={styles.totalRow}>
-                            <Text style={styles.totalLabel}>Net Balance</Text>
-                            <Text style={[styles.totalAmount, netBalance >= 0 ? styles.incomeText : styles.expenseText]}>
-                                {netBalance >= 0 ? '+' : ''}{netBalance.toLocaleString()}$
-                            </Text>
-                        </View>
-                    </View>
-
-                    <View style={styles.tabContainer}>
-                        {['expense', 'income', 'investment'].map((tab) => (
-                            <TouchableOpacity
-                                key={tab}
-                                style={[
-                                    styles.tab,
-                                    activeTab === tab && styles.activeTab
-                                ]}
-                                onPress={() => setActiveTab(tab as any)}
-                            >
-                                <Text style={[
-                                    styles.tabText,
-                                    activeTab === tab && styles.activeTabText
-                                ]}>
-                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </View>
-
-                    {renderPieChart()}
-                </>
+                renderPieChart()
             )}
         </ScrollView>
     );
@@ -277,34 +343,87 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     scrollViewContent: {
-        paddingBottom: 62,
+        paddingBottom: 72,
+        padding: 16,
     },
-    loadingContainer: {
+    header: {
+        marginBottom: 0,
+    },
+    summaryContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        marginBottom: 6,
+    },
+    summaryCard: {
         flex: 1,
-        justifyContent: 'center',
+        padding: 12,
+        borderRadius: 8,
+        marginHorizontal: 4,
+    },
+    summaryLabel: {
+        fontSize: 12,
+        fontWeight: '500',
+        marginBottom: 4,
+    },
+    summaryAmount: {
+        fontSize: 14,
+        fontWeight: 'bold',
+    },
+    netBalanceContainer: {
+        backgroundColor: '#F5F5F5',
+        padding: 16,
+        borderRadius: 8,
+        marginBottom: 6,
         alignItems: 'center',
-        minHeight: 200,
+    },
+    netBalanceLabel: {
+        fontSize: 14,
+        fontWeight: '500',
+        marginBottom: 4,
+    },
+    netBalanceAmount: {
+        fontSize: 24,
+        fontWeight: 'bold',
+    },
+    tabContainer: {
+        flexDirection: 'row',
+        marginBottom: 16,
+        backgroundColor: '#F5F5F5',
+        borderRadius: 8,
+        padding: 4,
+    },
+    tab: {
+        flex: 1,
+        paddingVertical: 8,
+        alignItems: 'center',
+        borderRadius: 6,
+    },
+    activeTab: {
+        backgroundColor: '#fff',
+        elevation: 2,
+    },
+    tabText: {
+        fontSize: 14,
+        color: '#666',
+    },
+    activeTabText: {
+        color: '#6200ee',
+        fontWeight: '500',
     },
     chartContainer: {
-        padding: 16,
         alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 8,
-        elevation: 2,
-        margin: 16,
-        marginBottom: 8,
+        marginTop: 16,
     },
     legendContainer: {
         width: '100%',
-        marginTop: 16,
-        paddingHorizontal: 8,
+        marginTop: 24,
     },
     legendItem: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 12,
+        backgroundColor: '#F5F5F5',
         padding: 8,
-        backgroundColor: '#f5f5f5',
         borderRadius: 8,
     },
     legendIconContainer: {
@@ -320,99 +439,30 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     legendTitle: {
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: '500',
-        color: '#333',
     },
     legendAmount: {
-        fontSize: 14,
+        fontSize: 12,
         color: '#666',
         marginTop: 2,
     },
-    summaryCard: {
-        margin: 16,
-        padding: 16,
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-    },
-    summaryRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: 12,
-    },
-    summaryItem: {
-        flex: 1,
-        alignItems: 'center',
-    },
-    summaryLabel: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 4,
-    },
-    summaryAmount: {
-        fontSize: 16,
-        fontWeight: '600',
-    },
-    expenseText: {
-        color: '#F44336',
-    },
-    incomeText: {
-        color: '#4CAF50',
-    },
-    investmentText: {
-        color: '#2196F3',
-    },
-    totalRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        paddingTop: 16,
-        borderTopWidth: 1,
-        borderTopColor: '#F0F0F0',
-    },
-    totalLabel: {
-        fontSize: 14,
-        color: '#666',
-    },
-    totalAmount: {
-        fontSize: 18,
-        fontWeight: 'bold',
-    },
-    tabContainer: {
-        flexDirection: 'row',
-        paddingHorizontal: 16,
-        marginBottom: 16,
-    },
-    tab: {
-        flex: 1,
-        paddingVertical: 8,
-        alignItems: 'center',
-        borderBottomWidth: 2,
-        borderBottomColor: 'transparent',
-    },
-    activeTab: {
-        borderBottomColor: '#2196F3',
-    },
-    tabText: {
-        color: '#666',
-        fontSize: 14,
-    },
-    activeTabText: {
-        color: '#2196F3',
-        fontWeight: '500',
-    },
     noDataContainer: {
-        padding: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        minHeight: 200,
+        padding: 32,
     },
     noDataText: {
-        fontSize: 16,
+        marginTop: 8,
+        color: '#666',
+        textAlign: 'center',
+    },
+    loadingContainer: {
+        padding: 32,
+        alignItems: 'center',
+    },
+    loadingText: {
+        marginTop: 8,
         color: '#666',
     },
 });
