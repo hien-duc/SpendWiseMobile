@@ -13,7 +13,7 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { categoriesService } from '../api/categoriesService';
 
 const availableIcons = [
-    'food', 'shopping-outline', 'tshirt-crew-outline', 'lipstick', 
+    'food', 'shopping-outline', 'tshirt-crew-outline', 'lipstick',
     'currency-usd', 'medical-bag', 'school', 'lightning-bolt', 'train'
 ];
 

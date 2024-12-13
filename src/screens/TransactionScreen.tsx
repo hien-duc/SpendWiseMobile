@@ -21,7 +21,7 @@ const TransactionScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TransactionInput 
+      <TransactionInput
         visible={isModalVisible}
         onClose={handleModalClose}
         type="expense"

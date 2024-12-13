@@ -1,12 +1,15 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
     onBack?: () => void;
 }
 
-const AllTimeCategoryReportScreen: React.FC<Props> = ({ onBack }) => {
+const AllTimeCategoryReportScreen: React.FC<Props> = () => {
+    const navigation = useNavigation();
+
     const renderCategoryItem = (icon: string, name: string, amount: string, percentage: string, trend: string) => (
         <View style={styles.categoryItem}>
             <View style={styles.categoryLeft}>
@@ -28,7 +31,7 @@ const AllTimeCategoryReportScreen: React.FC<Props> = ({ onBack }) => {
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={onBack}
+                    onPress={() => navigation.goBack()}
                 >
                     <MaterialIcons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>

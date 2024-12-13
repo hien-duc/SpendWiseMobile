@@ -54,11 +54,11 @@ class OtherService {
             const headers = this.getAuthHeaders(session);
             console.log('Making request to:', `${API_URL}/api/other/annual-transactions/${year}`);
             console.log('With headers:', headers);
-            
+
             const response = await fetch(`${API_URL}/api/other/annual-transactions/${year}`, {
                 headers
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server response:', {
@@ -83,11 +83,11 @@ class OtherService {
             const headers = this.getAuthHeaders(session);
             console.log('Making request to:', `${API_URL}/api/other/annual-categories/${year}`);
             console.log('With headers:', headers);
-            
+
             const response = await fetch(`${API_URL}/api/other/annual-categories/${year}`, {
                 headers
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server response:', {
@@ -107,16 +107,48 @@ class OtherService {
         }
     }
 
+    async getAnnualCategoriesReport(year: number, session: Session | null): Promise<CategorySummary[]> {
+        try {
+            console.log('Fetching annual categories for year:', year);
+            const url = `${API_URL}/api/other/annual-categories/${year}`;
+            console.log('Request URL:', url);
+            const response = await fetch(url, {
+                method: 'GET',
+                headers: this.getAuthHeaders(session)
+            });
+
+            console.log('Response Status:', response.status);
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', errorText);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Annual categories response:', data);
+            
+            if (!data) {
+                console.log('No annual categories data');
+                return [];
+            }
+            
+            return data;
+        } catch (error) {
+            console.error('Error in getAnnualCategoriesReport:', error);
+            throw error;
+        }
+    }
+
     async getAllTimeBalanceReport(session: Session | null): Promise<AllTimeBalanceReport[]> {
         try {
             const headers = this.getAuthHeaders(session);
             console.log('Making request to:', `${API_URL}/api/other/all-time-balance`);
             console.log('With headers:', headers);
-            
+
             const response = await fetch(`${API_URL}/api/other/all-time-balance`, {
                 headers
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server response:', {
@@ -141,11 +173,11 @@ class OtherService {
             const headers = this.getAuthHeaders(session);
             console.log('Making request to:', `${API_URL}/api/other/all-time-categories`);
             console.log('With headers:', headers);
-            
+
             const response = await fetch(`${API_URL}/api/other/all-time-categories`, {
                 headers
             });
-            
+
             if (!response.ok) {
                 const errorText = await response.text();
                 console.error('Server response:', {

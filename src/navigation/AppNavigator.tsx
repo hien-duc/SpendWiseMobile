@@ -15,6 +15,7 @@ import CategoryAnnualReportScreen from '../screens/CategoryAnnualReportScreen';
 import AllTimeReportScreen from '../screens/AllTimeReportScreen';
 import AllTimeCategoryReportScreen from '../screens/AllTimeCategoryReportScreen';
 import FinancialGoalsScreen from '../screens/FinancialGoalsScreen';
+import CategoryDetailScreen from '../screens/CategoryDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -90,6 +91,11 @@ const AppNavigator = () => {
         <Stack.Screen 
           name="FinancialGoals" 
           component={FinancialGoalsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="CategoryDetailScreen" 
+          component={CategoryDetailScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

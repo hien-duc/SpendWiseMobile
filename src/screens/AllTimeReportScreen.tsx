@@ -1,18 +1,19 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
 
 interface Props {
-    onBack?: () => void;
 }
 
-const AllTimeReportScreen: React.FC<Props> = ({ onBack }) => {
+const AllTimeReportScreen: React.FC<Props> = () => {
+    const navigation = useNavigation();
     return (
         <View style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity
                     style={styles.backButton}
-                    onPress={onBack}
+                    onPress={() => navigation.goBack()}
                 >
                     <MaterialIcons name="arrow-back" size={24} color="#333" />
                 </TouchableOpacity>
