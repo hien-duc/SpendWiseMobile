@@ -2,11 +2,6 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
-import AnnualReportScreen from './AnnualReportScreen';
-import CategoryAnnualReportScreen from './CategoryAnnualReportScreen';
-import AllTimeReportScreen from './AllTimeReportScreen';
-import AllTimeCategoryReportScreen from './AllTimeCategoryReportScreen';
-import FinancialGoalsScreen from './FinancialGoalsScreen';
 
 const OtherScreen = () => {
     const navigation = useNavigation();

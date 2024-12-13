@@ -85,7 +85,7 @@ const TransactionInput = ({
         'router', 'electrical-services',
 
         // Personal Expenses
-        'local-laundry-service', 'fitness-center', 'spa',
+        'local-laundry-service', 'spa',
         'local-library', 'local-movies',
 
         // Transportation
