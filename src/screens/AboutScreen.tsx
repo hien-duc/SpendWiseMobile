@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import LottieView from 'lottie-react-native';
 
 const AboutScreen = () => {
     const navigation = useNavigation();
@@ -23,7 +24,13 @@ const AboutScreen = () => {
             <ScrollView style={styles.content}>
                 <View style={styles.logoContainer}>
                     {/* can you  the actual SpendWise logo for this */}
-                    <MaterialIcons name="account-balance-wallet" size={80} color="#4CAF50" />
+                    <LottieView
+                        source={require('../../assets/lottie.json')}
+                        autoPlay
+                        loop
+                        style={styles.lottie}
+                    />
+                    {/* <MaterialIcons name="account-balance-wallet" size={80} color="#4CAF50" /> */}
                     <Text style={styles.appName}>SpendWise</Text>
                     <Text style={styles.version}>Version {appVersion}</Text>
                 </View>
@@ -95,6 +102,10 @@ const styles = StyleSheet.create({
     logoContainer: {
         alignItems: 'center',
         padding: 32,
+    },
+    lottie: {
+        width: 100, // Adjust size as needed
+        height: 100,
     },
     appName: {
         fontSize: 24,

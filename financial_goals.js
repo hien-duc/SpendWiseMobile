@@ -104,14 +104,19 @@ const handleValidationErrors = (req, res, next) => {
  */
 router.get('/', async (req, res) => {
     try {
+        const userId = req.query.userId;
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
         const { data, error } = await supabase
             .from('financial_goals')
             .select('*')
-            .eq('user_id', req.user.id)
+            .eq('user_id', userId)
             .order('deadline', { ascending: true });
 
         if (error) throw error;
-        res.json(data);
+        res.json(data || []);
     } catch (error) {
         console.error('Error fetching goals:', error);
         res.status(500).json({ error: error.message });
@@ -148,11 +153,17 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.query.userId;
+
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
+
         const { data, error } = await supabase
             .from('financial_goals')
             .select('*')
             .eq('id', id)
-            .eq('user_id', req.user.id)
+            .eq('user_id', userId)
             .single();
 
         if (error) {
@@ -193,18 +204,24 @@ router.get('/:id', async (req, res) => {
  */
 router.post('/', validateGoal, handleValidationErrors, async (req, res) => {
     try {
-        const goalData = {
-            user_id: req.user.id,
-            name: req.body.name,
-            target_amount: req.body.target_amount,
-            current_amount: req.body.current_amount || 0,
-            deadline: req.body.deadline,
-            status: req.body.status || 'in_progress'
-        };
+        const { name, target_amount, current_amount = 0, deadline, status = 'in_progress', user_id } = req.body;
+
+        if (!user_id) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
 
         const { data, error } = await supabase
             .from('financial_goals')
-            .insert([goalData])
+            .insert([
+                {
+                    user_id,
+                    name,
+                    target_amount,
+                    current_amount,
+                    deadline,
+                    status,
+                }
+            ])
             .select()
             .single();
 
@@ -249,34 +266,27 @@ router.post('/', validateGoal, handleValidationErrors, async (req, res) => {
 router.put('/:id', validateGoal, handleValidationErrors, async (req, res) => {
     try {
         const { id } = req.params;
-        const updateData = {
-            name: req.body.name,
-            target_amount: req.body.target_amount,
-            current_amount: req.body.current_amount,
-            deadline: req.body.deadline,
-            status: req.body.status
-        };
+        const { name, target_amount, current_amount, deadline, status, user_id } = req.body;
 
-        // Remove undefined fields
-        Object.keys(updateData).forEach(key => 
-            updateData[key] === undefined && delete updateData[key]
-        );
+        if (!user_id) {
+            return res.status(400).json({ error: 'User ID is required' });
+        }
 
         const { data, error } = await supabase
             .from('financial_goals')
-            .update(updateData)
+            .update({
+                name,
+                target_amount,
+                current_amount,
+                deadline,
+                status,
+            })
             .eq('id', id)
-            .eq('user_id', req.user.id)
+            .eq('user_id', user_id)
             .select()
             .single();
 
-        if (error) {
-            if (error.code === 'PGRST116') {
-                return res.status(404).json({ error: 'Financial goal not found' });
-            }
-            throw error;
-        }
-
+        if (error) throw error;
         res.json(data);
     } catch (error) {
         console.error('Error updating goal:', error);
@@ -309,29 +319,20 @@ router.put('/:id', validateGoal, handleValidationErrors, async (req, res) => {
 router.delete('/:id', async (req, res) => {
     try {
         const { id } = req.params;
+        const userId = req.query.userId;
 
-        // First check if the goal exists and belongs to the user
-        const { data: existingGoal, error: checkError } = await supabase
-            .from('financial_goals')
-            .select('id')
-            .eq('id', id)
-            .eq('user_id', req.user.id)
-            .single();
-
-        if (checkError || !existingGoal) {
-            return res.status(404).json({ error: 'Financial goal not found' });
+        if (!userId) {
+            return res.status(400).json({ error: 'User ID is required' });
         }
 
-        // If goal exists, proceed with deletion
-        const { error: deleteError } = await supabase
+        const { error } = await supabase
             .from('financial_goals')
             .delete()
             .eq('id', id)
-            .eq('user_id', req.user.id);
+            .eq('user_id', userId);
 
-        if (deleteError) throw deleteError;
-
-        res.json({ message: 'Financial goal deleted successfully' });
+        if (error) throw error;
+        res.status(204).send();
     } catch (error) {
         console.error('Error deleting goal:', error);
         res.status(500).json({ error: error.message });

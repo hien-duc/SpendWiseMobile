@@ -119,7 +119,8 @@ const EditInitialBalanceScreen = () => {
 
     return (
         <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        // ios
+            behavior={Platform.OS === 'android' ? 'padding' : 'height'}
             style={styles.container}
         >
             <View style={styles.header}>

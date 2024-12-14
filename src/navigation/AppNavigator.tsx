@@ -14,10 +14,12 @@ import AnnualReportScreen from '../screens/AnnualReportScreen';
 import CategoryAnnualReportScreen from '../screens/CategoryAnnualReportScreen';
 import AllTimeReportScreen from '../screens/AllTimeReportScreen';
 import AllTimeCategoryReportScreen from '../screens/AllTimeCategoryReportScreen';
-import FinancialGoalsScreen from '../screens/FinancialGoalsScreen';
 import HomeScreen from '../screens/HomeScreen';
 import TransactionEditScreen from '../screens/TransactionEditScreen';
 import CategoryDetailScreen from '../screens/CategoryDetailScreen';
+import AddGoalScreen from '../screens/AddGoalScreen';
+import EditGoalScreen from '../screens/EditGoalScreen';
+import {FinancialGoalsScreen} from '../screens/FinancialGoalsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -101,13 +103,23 @@ const AppNavigator = () => {
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="FinancialGoals"
-          component={FinancialGoalsScreen}
+          name="CategoryDetailScreen"
+          component={CategoryDetailScreen}
           options={{headerShown: false}}
         />
         <Stack.Screen
-          name="CategoryDetailScreen"
-          component={CategoryDetailScreen}
+          name="AddGoal"
+          component={AddGoalScreen}
+          options={{headerShown: true, title: 'Add Goal'}}
+        />
+        <Stack.Screen
+          name="EditGoal"
+          component={EditGoalScreen}
+          options={{headerShown: true, title: 'Edit Goal'}}
+        />
+        <Stack.Screen
+          name="FinancialGoals"
+          component={FinancialGoalsScreen}
           options={{headerShown: false}}
         />
       </Stack.Navigator>

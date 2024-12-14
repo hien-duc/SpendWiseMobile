@@ -31,11 +31,20 @@ const YearPicker: React.FC<YearPickerProps> = ({ selectedYear, onYearChange }) =
             <Modal
                 visible={modalVisible}
                 transparent={true}
-                animationType="fade"
+                animationType="slide"
+                statusBarTranslucent={true}
                 onRequestClose={() => setModalVisible(false)}
             >
-                <View style={styles.modalContainer}>
-                    <View style={styles.modalContent}>
+                <TouchableOpacity 
+                    style={styles.modalContainer} 
+                    activeOpacity={1} 
+                    onPress={() => setModalVisible(false)}
+                >
+                    <TouchableOpacity 
+                        activeOpacity={1} 
+                        onPress={e => e.stopPropagation()}
+                        style={styles.modalContent}
+                    >
                         <Text style={styles.title}>Select Year</Text>
                         {years.map(year => (
                             <TouchableOpacity
@@ -62,8 +71,8 @@ const YearPicker: React.FC<YearPickerProps> = ({ selectedYear, onYearChange }) =
                         >
                             <Text style={styles.closeButton}>Close</Text>
                         </TouchableOpacity>
-                    </View>
-                </View>
+                    </TouchableOpacity>
+                </TouchableOpacity>
             </Modal>
         </View>
     );
