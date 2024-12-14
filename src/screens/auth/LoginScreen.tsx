@@ -11,6 +11,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { signInWithEmail } from '../../../supabase';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  FadeIn,
+  SlideInDown,
+} from 'react-native-reanimated';
 
 const LoginScreen = ({ navigation }: any) => {
   const [email, setEmail] = useState('');
@@ -24,7 +30,7 @@ const LoginScreen = ({ navigation }: any) => {
     }
 
     setLoading(true);
-    const { data, error } = await signInWithEmail(email, password);
+    const { error } = await signInWithEmail(email, password);
     setLoading(false);
 
     if (error) {
@@ -49,13 +55,28 @@ const LoginScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.title}>Welcome{'\n'}Back</Text>
-        <Text style={styles.subtitle}>
+      <Animated.View 
+        style={styles.content}
+        entering={FadeIn.duration(1000)}
+      >
+        <Animated.Text 
+          style={styles.title}
+          entering={FadeInDown.duration(1000).delay(300)}
+        >
+          Welcome{'\n'}Back
+        </Animated.Text>
+        
+        <Animated.Text 
+          style={styles.subtitle}
+          entering={FadeInDown.duration(1000).delay(400)}
+        >
           Please sign in to continue
-        </Text>
+        </Animated.Text>
 
-        <View style={styles.form}>
+        <Animated.View 
+          style={styles.form}
+          entering={SlideInDown.duration(1000).delay(500)}
+        >
           <View style={styles.inputContainer}>
             <Icon name="email-outline" size={20} color="#666" />
             <TextInput
@@ -87,32 +108,42 @@ const LoginScreen = ({ navigation }: any) => {
             onPress={() => navigation.navigate('ForgotPassword')}
             disabled={loading}
           >
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Animated.Text 
+              style={styles.forgotPasswordText}
+              entering={FadeInUp.duration(800).delay(600)}
+            >
+              Forgot Password?
+            </Animated.Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleLogin}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Login</Text>
-            )}
-          </TouchableOpacity>
-
-          <View style={styles.signUpContainer}>
-            <Text style={styles.signUpText}>Don't have an account? </Text>
+          <Animated.View entering={FadeInUp.duration(800).delay(700)}>
             <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={handleLogin}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Login</Text>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
+
+          <Animated.View 
+            style={styles.signUpContainer}
+            entering={FadeInUp.duration(800).delay(800)}
+          >
+            <Text style={styles.signUpText}>Don't have an account? </Text>
+            <TouchableOpacity 
               onPress={() => navigation.navigate('SignUp')}
               disabled={loading}
             >
               <Text style={styles.signUpLink}>Sign up</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+          </Animated.View>
+        </Animated.View>
+      </Animated.View>
     </SafeAreaView>
   );
 };

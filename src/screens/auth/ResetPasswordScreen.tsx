@@ -11,6 +11,10 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updatePassword } from '../../../supabase';
+import Animated, {
+  FadeIn,
+  FadeInDown,
+} from 'react-native-reanimated';
 
 const ResetPasswordScreen = ({ navigation, route }: any) => {
   const [newPassword, setNewPassword] = useState('');
@@ -59,13 +63,28 @@ const ResetPasswordScreen = ({ navigation, route }: any) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.title}>Create New{'\n'}Password</Text>
-        <Text style={styles.subtitle}>
+      <Animated.View 
+        style={styles.content}
+        entering={FadeIn.duration(500)}
+      >
+        <Animated.Text 
+          style={styles.title}
+          entering={FadeInDown.duration(400).delay(100)}
+        >
+          Create New{'\n'}Password
+        </Animated.Text>
+        
+        <Animated.Text 
+          style={styles.subtitle}
+          entering={FadeInDown.duration(400).delay(150)}
+        >
           Your new password must be different from previously used passwords
-        </Text>
+        </Animated.Text>
 
-        <View style={styles.form}>
+        <Animated.View 
+          style={styles.form}
+          entering={FadeInDown.duration(400).delay(200)}
+        >
           <View style={styles.inputContainer}>
             <Icon name="lock-outline" size={20} color="#666" />
             <TextInput
@@ -103,8 +122,8 @@ const ResetPasswordScreen = ({ navigation, route }: any) => {
               <Text style={styles.buttonText}>Reset Password</Text>
             )}
           </TouchableOpacity>
-        </View>
-      </View>
+        </Animated.View>
+      </Animated.View>
     </SafeAreaView>
   );
 };

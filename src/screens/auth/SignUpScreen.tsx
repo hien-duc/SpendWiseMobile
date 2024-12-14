@@ -11,6 +11,12 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { signUpWithEmail } from '../../../supabase';
+import Animated, {
+  FadeInDown,
+  FadeInUp,
+  FadeIn,
+  SlideInDown,
+} from 'react-native-reanimated';
 
 const SignUpScreen = ({ navigation }: any) => {
   const [name, setName] = useState('');
@@ -50,13 +56,28 @@ const SignUpScreen = ({ navigation }: any) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.content}>
-        <Text style={styles.title}>Let's{'\n'}Get Started</Text>
-        <Text style={styles.subtitle}>
-          Please fill the details to create an account
-        </Text>
+      <Animated.View
+        style={styles.content}
+        entering={FadeIn.duration(1000)}
+      >
+        <Animated.Text
+          style={styles.title}
+          entering={FadeInDown.duration(1000).delay(300)}
+        >
+          Let's{'\n'}Get Started
+        </Animated.Text>
 
-        <View style={styles.form}>
+        <Animated.Text
+          style={styles.subtitle}
+          entering={FadeInDown.duration(1000).delay(400)}
+        >
+          Create an account to continue
+        </Animated.Text>
+
+        <Animated.View
+          style={styles.form}
+          entering={SlideInDown.duration(1000).delay(500)}
+        >
           <View style={styles.inputContainer}>
             <Icon name="account-outline" size={20} color="#666" />
             <TextInput
@@ -96,19 +117,24 @@ const SignUpScreen = ({ navigation }: any) => {
             />
           </View>
 
-          <TouchableOpacity
-            style={[styles.button, loading && styles.buttonDisabled]}
-            onPress={handleSignUp}
-            disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>Sign up</Text>
-            )}
-          </TouchableOpacity>
+          <Animated.View entering={FadeInUp.duration(800).delay(700)}>
+            <TouchableOpacity
+              style={[styles.button, loading && styles.buttonDisabled]}
+              onPress={handleSignUp}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.buttonText}>Sign up</Text>
+              )}
+            </TouchableOpacity>
+          </Animated.View>
 
-          <View style={styles.loginContainer}>
+          <Animated.View
+            style={styles.loginContainer}
+            entering={FadeInUp.duration(800).delay(800)}
+          >
             <Text style={styles.loginText}>Already have an account? </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
@@ -116,9 +142,9 @@ const SignUpScreen = ({ navigation }: any) => {
             >
               <Text style={styles.loginLink}>Login</Text>
             </TouchableOpacity>
-          </View>
-        </View>
-      </View>
+          </Animated.View>
+        </Animated.View>
+      </Animated.View>
     </SafeAreaView>
   );
 };
@@ -205,5 +231,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
 
 export default SignUpScreen;
