@@ -208,10 +208,10 @@ class OtherService {
     async getAllTimeCategoriesSummary(session: Session | null): Promise<CategorySummary[]> {
         try {
             const headers = this.getAuthHeaders(session);
-            console.log('Making request to:', `${API_URL}/api/other/all-time-categories`);
+            console.log('Making request to:', `${API_URL}/api/other/top-categories-all-time`);
             console.log('With headers:', headers);
 
-            const response = await fetch(`${API_URL}/api/other/all-time-categories`, {
+            const response = await fetch(`${API_URL}/api/other/top-categories-all-time`, {
                 headers
             });
 
