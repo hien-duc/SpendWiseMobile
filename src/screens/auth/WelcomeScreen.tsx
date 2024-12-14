@@ -9,6 +9,7 @@ import {
   Image,
 } from 'react-native';
 import MaterialCommunityIcons  from 'react-native-vector-icons/MaterialIcons';
+import LottieView from 'lottie-react-native';
 
 
 const WelcomeScreen = ({ navigation }: any) => {
@@ -17,7 +18,15 @@ const WelcomeScreen = ({ navigation }: any) => {
       <View style={styles.content}>
         <View style={styles.illustrationContainer}>
           <View style={styles.illustrationCircle}>
-            <MaterialCommunityIcons name="wallet" size={60} color="#00B152" />
+            {/* <MaterialCommunityIcons name="wallet" size={60} color="#00B152" /> */}
+            <View style={styles.illustrationCircle}>
+            <LottieView
+              source={require('../../../assets/lottie.json')}
+              autoPlay
+              loop
+              style={styles.lottie}
+            />
+          </View>
           </View>
         </View>
 
@@ -63,6 +72,10 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  lottie: {
+    width: 100, // Adjust size as needed
+    height: 100,
   },
   illustrationCircle: {
     width: 120,
