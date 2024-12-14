@@ -32,7 +32,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
       Alert.alert(
         'Success',
         'Password reset instructions have been sent to your email. Please check your email and click on the reset link.',
-        [{ text: 'OK', onPress: () => navigation.navigate('ResetPassword') }]
+        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
       );
     }
   };
