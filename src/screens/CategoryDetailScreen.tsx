@@ -41,7 +41,7 @@ const CategoryDetailScreen = () => {
     const fetchCategoryTrend = async () => {
         try {
             if (!isAuthenticated) {
-                navigation.navigate('Login');
+                navigation.navigate('Auth', { screen: 'Login' });
                 return;
             }
 
@@ -80,7 +80,7 @@ const CategoryDetailScreen = () => {
                         text: 'OK',
                         onPress: async () => {
                             await logout();
-                            navigation.navigate('Login');
+                            navigation.navigate('Auth', { screen: 'Login' });
                         }
                     }]
                 );

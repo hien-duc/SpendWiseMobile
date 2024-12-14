@@ -10,45 +10,57 @@ interface FinancialGoalInput {
 }
 
 export const financialGoalsService = {
-  getAll: async (): Promise<FinancialGoal[]> => {
+  getAll: async (userId: string): Promise<FinancialGoal[]> => {
     try {
-      const response = await apiClient.get<ApiResponse<FinancialGoal[]>>('/financial/financial-goals');
-      return response.data.data;
+      const response = await apiClient.get<FinancialGoal[]>('/financial/financial-goals/', {
+        params: { userId }
+      });
+      return response.data || [];
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  getById: async (id: string): Promise<FinancialGoal> => {
+  getById: async (id: string, userId: string): Promise<FinancialGoal> => {
     try {
-      const response = await apiClient.get<ApiResponse<FinancialGoal>>(`/financial/financial-goals/${id}`);
-      return response.data.data;
+      const response = await apiClient.get<FinancialGoal>(`/financial/financial-goals/${id}/`, {
+        params: { userId }
+      });
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  create: async (goal: FinancialGoalInput): Promise<FinancialGoal> => {
+  create: async (goal: Partial<FinancialGoal>, userId: string): Promise<FinancialGoal> => {
     try {
-      const response = await apiClient.post<ApiResponse<FinancialGoal>>('/financial/financial-goals', goal);
-      return response.data.data;
+      const response = await apiClient.post<FinancialGoal>('/financial/financial-goals/', {
+        ...goal,
+        user_id: userId
+      });
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  update: async (id: string, goal: Partial<FinancialGoalInput>): Promise<FinancialGoal> => {
+  update: async (id: string, goal: Partial<FinancialGoal>, userId: string): Promise<FinancialGoal> => {
     try {
-      const response = await apiClient.put<ApiResponse<FinancialGoal>>(`/financial/financial-goals/${id}`, goal);
-      return response.data.data;
+      const response = await apiClient.put<FinancialGoal>(`/financial/financial-goals/${id}/`, {
+        ...goal,
+        user_id: userId
+      });
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (id: string, userId: string): Promise<void> => {
     try {
-      await apiClient.delete(`/financial/financial-goals/${id}`);
+      await apiClient.delete(`/financial/financial-goals/${id}/`, {
+        params: { userId }
+      });
     } catch (error) {
       throw handleApiError(error);
     }

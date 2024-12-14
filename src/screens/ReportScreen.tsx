@@ -38,7 +38,7 @@ const ReportScreen = () => {
     const fetchReportData = async () => {
         try {
             if (!isAuthenticated) {
-                navigation.navigate('LoginScreen');
+                navigation.navigate('Auth', { screen: 'Login' });
                 return;
             }
 

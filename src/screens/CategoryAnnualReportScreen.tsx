@@ -33,7 +33,7 @@ const CategoryAnnualReportScreen: React.FC = () => {
     const fetchAnnualReport = async () => {
         try {
             if (!isAuthenticated) {
-                navigation.navigate('LoginScreen');
+                navigation.navigate('Auth', { screen: 'Login' });
                 return;
             }
 

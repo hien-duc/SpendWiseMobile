@@ -14,8 +14,10 @@ import AnnualReportScreen from '../screens/AnnualReportScreen';
 import CategoryAnnualReportScreen from '../screens/CategoryAnnualReportScreen';
 import AllTimeReportScreen from '../screens/AllTimeReportScreen';
 import AllTimeCategoryReportScreen from '../screens/AllTimeCategoryReportScreen';
-import FinancialGoalsScreen from '../screens/FinancialGoalsScreen';
 import CategoryDetailScreen from '../screens/CategoryDetailScreen';
+import AddGoalScreen from '../screens/AddGoalScreen';
+import EditGoalScreen from '../screens/EditGoalScreen';
+import { FinancialGoalsScreen } from '../screens/FinancialGoalsScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -23,79 +25,89 @@ const AppNavigator = () => {
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{ headerShown: false }}>
-        <Stack.Screen 
-          name="Auth" 
+        <Stack.Screen
+          name="Auth"
           component={AuthNavigator}
           options={{
             gestureEnabled: false,
           }}
         />
-        <Stack.Screen 
-          name="MainTabs" 
+        <Stack.Screen
+          name="MainTabs"
           component={TabNavigator}
           options={{
             gestureEnabled: false,
           }}
         />
-        <Stack.Screen 
-          name="CategoryManagement" 
+        <Stack.Screen
+          name="CategoryManagement"
           component={CategoryManagementScreen}
           options={{ headerShown: false }}
           initialParams={{ initialType: undefined }}
         />
-        <Stack.Screen 
-          name="CreateCategory" 
+        <Stack.Screen
+          name="CreateCategory"
           component={CreateCategoryScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="EditInitialBalance" 
+        <Stack.Screen
+          name="EditInitialBalance"
           component={EditInitialBalanceScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="Help" 
+        <Stack.Screen
+          name="Help"
           component={HelpScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="PrivacyPolicy" 
+        <Stack.Screen
+          name="PrivacyPolicy"
           component={PrivacyPolicyScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="About" 
+        <Stack.Screen
+          name="About"
           component={AboutScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="AnnualReport" 
+        <Stack.Screen
+          name="AnnualReport"
           component={AnnualReportScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="CategoryAnnualReport" 
+        <Stack.Screen
+          name="CategoryAnnualReport"
           component={CategoryAnnualReportScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="AllTimeReport" 
+        <Stack.Screen
+          name="AllTimeReport"
           component={AllTimeReportScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="AllTimeCategoryReport" 
+        <Stack.Screen
+          name="AllTimeCategoryReport"
           component={AllTimeCategoryReportScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="FinancialGoals" 
-          component={FinancialGoalsScreen}
+        <Stack.Screen
+          name="CategoryDetailScreen"
+          component={CategoryDetailScreen}
           options={{ headerShown: false }}
         />
-        <Stack.Screen 
-          name="CategoryDetailScreen" 
-          component={CategoryDetailScreen}
+        <Stack.Screen
+          name="AddGoal"
+          component={AddGoalScreen}
+          options={{ headerShown: true, title: 'Add Goal' }}
+        />
+        <Stack.Screen
+          name="EditGoal"
+          component={EditGoalScreen}
+          options={{ headerShown: true, title: 'Edit Goal' }}
+        />
+        <Stack.Screen
+          name="FinancialGoals"
+          component={FinancialGoalsScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
