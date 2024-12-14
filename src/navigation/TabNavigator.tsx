@@ -91,6 +91,7 @@ const TabNavigator = () => {
                     },
                 })}
                 options={{
+                    headerShown: false,
                     tabBarShowLabel: false,
                     tabBarIcon: () => (
                         <MaterialCommunityIcons name="plus" color="#FFFFFF" size={30} />
