@@ -110,7 +110,7 @@ const SignUpScreen = ({ navigation }: any) => {
 
           <View style={styles.loginContainer}>
             <Text style={styles.loginText}>Already have an account? </Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => navigation.navigate('Login')}
               disabled={loading}
             >

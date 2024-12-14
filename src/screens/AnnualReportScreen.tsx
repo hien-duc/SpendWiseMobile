@@ -5,6 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../hooks/useAuth';
 import { otherService } from '../api/otherService';
 import YearPicker from '../components/YearPicker';
+import Animated, { FadeIn, SlideInRight, FadeInDown } from 'react-native-reanimated';
 
 const AnnualReportScreen = () => {
     const navigation = useNavigation();
@@ -44,7 +45,10 @@ const AnnualReportScreen = () => {
     if (loading) {
         return (
             <View style={styles.container}>
-                <View style={styles.header}>
+                <Animated.View 
+                    entering={FadeIn.duration(300)}
+                    style={styles.header}
+                >
                     <TouchableOpacity
                         style={styles.backButton}
                         onPress={() => navigation.goBack()}
@@ -53,11 +57,18 @@ const AnnualReportScreen = () => {
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Annual Report {selectedYear}</Text>
                     <View style={styles.placeholder} />
-                </View>
-                <YearPicker selectedYear={selectedYear} onYearChange={setSelectedYear} />
-                <View style={styles.loadingContainer}>
+                </Animated.View>
+                <Animated.View 
+                    entering={FadeIn.delay(150).duration(300)}
+                >
+                    <YearPicker selectedYear={selectedYear} onYearChange={setSelectedYear} />
+                </Animated.View>
+                <Animated.View 
+                    entering={FadeIn.delay(300).duration(300)}
+                    style={styles.loadingContainer}
+                >
                     <ActivityIndicator size="large" color="#2196F3" />
-                </View>
+                </Animated.View>
             </View>
         );
     }
@@ -66,7 +77,10 @@ const AnnualReportScreen = () => {
 
     return (
         <View style={styles.container}>
-            <View style={styles.header}>
+            <Animated.View 
+                entering={FadeIn.duration(300)}
+                style={styles.header}
+            >
                 <TouchableOpacity
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
@@ -75,20 +89,30 @@ const AnnualReportScreen = () => {
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Annual Report {selectedYear}</Text>
                 <View style={styles.placeholder} />
-            </View>
-            <YearPicker selectedYear={selectedYear} onYearChange={setSelectedYear} />
+            </Animated.View>
+            <Animated.View 
+                entering={FadeIn.delay(150).duration(300)}
+            >
+                <YearPicker selectedYear={selectedYear} onYearChange={setSelectedYear} />
+            </Animated.View>
             {loading ? (
                 <ActivityIndicator size="large" color="#0000ff" />
             ) : error ? (
-                <View style={styles.errorContainer}>
+                <Animated.View 
+                    entering={FadeInDown.duration(300)}
+                    style={styles.errorContainer}
+                >
                     <MaterialIcons name="error-outline" size={48} color="#F44336" />
                     <Text style={styles.errorText}>{error}</Text>
                     <TouchableOpacity style={styles.retryButton} onPress={fetchAnnualReport}>
                         <Text style={styles.retryButtonText}>Retry</Text>
                     </TouchableOpacity>
-                </View>
+                </Animated.View>
             ) : (
-                <ScrollView style={styles.content}>
+                <Animated.ScrollView 
+                    entering={SlideInRight.delay(300).duration(300)}
+                    style={styles.content}
+                >
                     <View style={styles.section}>
                         <Text style={styles.sectionTitle}>Year to Date Summary</Text>
                         <View style={styles.summaryCard}>
@@ -156,7 +180,7 @@ const AnnualReportScreen = () => {
                             </View>
                         ))}
                     </View>
-                </ScrollView>
+                </Animated.ScrollView>
             )}
         </View>
     );
