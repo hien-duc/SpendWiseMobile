@@ -5,7 +5,7 @@ export const transactionsService = {
   getAll: async (): Promise<Transaction[]> => {
     try {
       const response = await apiClient.get<ApiResponse<Transaction[]>>('/transactions');
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
@@ -14,7 +14,7 @@ export const transactionsService = {
   getById: async (id: string): Promise<Transaction> => {
     try {
       const response = await apiClient.get<ApiResponse<Transaction>>(`/transactions/${id}`);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
@@ -23,7 +23,7 @@ export const transactionsService = {
   create: async (transaction: TransactionInput): Promise<Transaction> => {
     try {
       const response = await apiClient.post<ApiResponse<Transaction>>('/transactions', transaction);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
@@ -32,7 +32,7 @@ export const transactionsService = {
   update: async (id: string, transaction: Partial<TransactionInput>): Promise<Transaction> => {
     try {
       const response = await apiClient.put<ApiResponse<Transaction>>(`/transactions/${id}`, transaction);
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }
@@ -52,7 +52,7 @@ export const transactionsService = {
         message: string; 
         latest_transactions: Transaction[] 
       }>>('/financial/generate-transactions');
-      return response.data.data;
+      return response.data;
     } catch (error) {
       throw handleApiError(error);
     }

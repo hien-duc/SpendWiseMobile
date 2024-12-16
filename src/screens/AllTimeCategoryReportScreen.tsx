@@ -1,30 +1,79 @@
-import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { PieChart } from 'react-native-chart-kit';
+import { otherService } from '../api/otherService';
+import { useAuth } from '../hooks/useAuth';
 
 interface Props {
     onBack?: () => void;
 }
 
+interface CategoryData {
+    category: string;
+    percentage: number;
+    icon: string;
+    color: string;
+}
+
 const AllTimeCategoryReportScreen: React.FC<Props> = () => {
     const navigation = useNavigation();
+    const screenWidth = Dimensions.get('window').width;
+    const { session } = useAuth();
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
 
-    const renderCategoryItem = (icon: string, name: string, amount: string, percentage: string, trend: string) => (
-        <View style={styles.categoryItem}>
-            <View style={styles.categoryLeft}>
-                <MaterialIcons name={icon} size={24} color="#666" />
-                <Text style={styles.categoryName}>{name}</Text>
+    useEffect(() => {
+        if (session) {
+            fetchCategoryData();
+        }
+    }, []);
+
+    const fetchCategoryData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await otherService.getAllTimeCategoriesSummary(session);
+            setCategoryData(data);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'An error occurred while fetching data');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const chartData = categoryData.map((item) => ({
+        name: item.category,
+        population: item.percentage,
+        color: item.color,
+        legendFontColor: '#7F7F7F',
+        legendFontSize: 12
+    }));
+
+    const renderCategoryItem = (data: CategoryData) => {
+        // Safely handle percentage display
+        const formattedPercentage = data.percentage != null 
+            ? data.percentage.toFixed(2) 
+            : 'N/A';
+
+        return (
+            <View key={data.category} style={styles.categoryItem}>
+                <View style={styles.categoryLeft}>
+                    <MaterialIcons 
+                        name={data.icon || 'help-outline'} 
+                        size={24} 
+                        color={data.color || '#CCCCCC'} 
+                    />
+                    <Text style={styles.categoryName}>{data.category}</Text>
+                </View>
+                <View style={styles.categoryRight}>
+                    <Text style={styles.categoryPercentage}>{`${formattedPercentage}%`}</Text>
+                </View>
             </View>
-            <View style={styles.categoryRight}>
-                <Text style={styles.categoryAmount}>{amount}</Text>
-                <Text style={styles.categoryPercentage}>{percentage}</Text>
-                <Text style={[styles.categoryTrend, { color: trend.includes('+') ? '#4CAF50' : '#F44336' }]}>
-                    {trend}
-                </Text>
-            </View>
-        </View>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -40,27 +89,48 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
             </View>
 
             <ScrollView style={styles.content}>
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Overall Category Distribution</Text>
-                    {/* Add your pie chart here */}
-                    <Text style={styles.placeholderText}>Category distribution chart will be shown here</Text>
-                </View>
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Category Details</Text>
-                    {renderCategoryItem('home', 'Housing', '$60,000', '35%', '+5%')}
-                    {renderCategoryItem('fastfood', 'Food', '$30,000', '20%', '-2%')}
-                    {renderCategoryItem('directions-car', 'Transportation', '$25,000', '15%', '+1%')}
-                    {renderCategoryItem('shopping-bag', 'Shopping', '$20,000', '12%', '+3%')}
-                    {renderCategoryItem('medical-services', 'Healthcare', '$15,000', '10%', '-1%')}
-                    {renderCategoryItem('more-horiz', 'Others', '$10,000', '8%', '0%')}
-                </View>
-
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Category Growth</Text>
-                    {/* Add your growth chart here */}
-                    <Text style={styles.placeholderText}>Category growth trends will be shown here</Text>
-                </View>
+                {loading ? (
+                    <View style={styles.loadingContainer}>
+                        <ActivityIndicator size="large" color="#0000ff" />
+                    </View>
+                ) : error ? (
+                    <View style={styles.errorContainer}>
+                        <Text style={styles.errorText}>{error}</Text>
+                    </View>
+                ) : (
+                    <>
+                        {categoryData.length > 0 && (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Overall Category Distribution</Text>
+                                <PieChart
+                                    data={chartData}
+                                    width={screenWidth - 64}
+                                    height={220}
+                                    chartConfig={{
+                                        backgroundColor: '#ffffff',
+                                        backgroundGradientFrom: '#ffffff',
+                                        backgroundGradientTo: '#ffffff',
+                                        color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                                    }}
+                                    accessor="population"
+                                    backgroundColor="transparent"
+                                    paddingLeft="15"
+                                    absolute
+                                />
+                            </View>
+                        )}
+                        {categoryData.length > 0 ? (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Category Details</Text>
+                                {categoryData.map(renderCategoryItem)}
+                            </View>
+                        ) : (
+                            <View style={styles.errorContainer}>
+                                <Text style={styles.errorText}>No category data available</Text>
+                            </View>
+                        )}
+                    </>
+                )}
             </ScrollView>
         </View>
     );
@@ -135,26 +205,23 @@ const styles = StyleSheet.create({
     categoryRight: {
         alignItems: 'flex-end',
     },
-    categoryAmount: {
+    categoryPercentage: {
         fontSize: 16,
         color: '#333',
-        fontWeight: '600',
     },
-    categoryPercentage: {
-        fontSize: 12,
-        color: '#666',
-        marginTop: 4,
-    },
-    categoryTrend: {
-        fontSize: 12,
-        marginTop: 4,
-    },
-    placeholderText: {
-        fontSize: 14,
-        color: '#666',
-        fontStyle: 'italic',
-        textAlign: 'center',
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         padding: 20,
+    },
+    errorContainer: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    errorText: {
+        color: 'red',
+        textAlign: 'center',
     },
 });
 
