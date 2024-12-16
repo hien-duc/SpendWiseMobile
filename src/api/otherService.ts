@@ -25,16 +25,24 @@ interface CategorySummary {
 }
 
 interface AllTimeBalanceReport {
-    year: number;
-    month: number;
-    month_name: string;
     income_amount: number;
     expense_amount: number;
     investment_amount: number;
     net_amount: number;
     initial_balance: number;
     cumulative_balance: number;
-}
+    avg_monthly_income: number;
+    avg_monthly_expense: number;
+    highest_income_monthly: number;
+    highest_expense_monthly: number;
+  }
+
+interface YearlyData {
+    year: number;
+    total_income: number;
+    total_expense: number;
+    net_amount: number;
+  }
 
 class OtherService {
     private getAuthHeaders(session: Session | null): HeadersInit {
@@ -168,13 +176,42 @@ class OtherService {
         }
     }
 
+    async getFiveYearReport(session: Session | null): Promise<YearlyData[]> {
+        try {
+            const headers = this.getAuthHeaders(session);
+            console.log('Making request to:', `${API_URL}/api/other/recent-years-summary`);
+            console.log('With headers:', headers);
+            
+            const response = await fetch(`${API_URL}/api/other/recent-years-summary`, {
+                headers
+            });
+            
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('Server response:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    body: errorText
+                });
+                throw new Error(`Failed to fetch all-time balance report: ${response.status} ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            console.log('Received data:', data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching all-time balance report:', error);
+            throw error;
+        }
+    }
+
     async getAllTimeCategoriesSummary(session: Session | null): Promise<CategorySummary[]> {
         try {
             const headers = this.getAuthHeaders(session);
-            console.log('Making request to:', `${API_URL}/api/other/all-time-categories`);
+            console.log('Making request to:', `${API_URL}/api/other/top-categories-all-time`);
             console.log('With headers:', headers);
 
-            const response = await fetch(`${API_URL}/api/other/all-time-categories`, {
+            const response = await fetch(`${API_URL}/api/other/top-categories-all-time`, {
                 headers
             });
 

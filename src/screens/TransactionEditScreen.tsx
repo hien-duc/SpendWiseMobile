@@ -1,12 +1,12 @@
 import React, {useState, useEffect} from 'react';
 import {View, StyleSheet} from 'react-native';
-import {useNavigation, useRoute} from '@react-navigation/native';
-import TransactionInput from '../components/input/TransactionInput';
+import {useRoute} from '@react-navigation/native';
+import ModifyTransaction from '../components/input/ModifyTransaction';
 
-const TransactionScreen = () => {
+const TransactionEditScreen = ({route, navigation}) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const navigation = useNavigation();
-  const route = useRoute();
+  const {transactionId} = route.params;
+  console.log('Trans ID is' + transactionId);
 
   useEffect(() => {
     // Open modal whenever route params change (including initial mount)
@@ -16,15 +16,16 @@ const TransactionScreen = () => {
   const handleModalClose = () => {
     setIsModalVisible(false);
     // Navigate to Home instead of using goBack
-    navigation.navigate('Home');
+    navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
-      <TransactionInput
+      <ModifyTransaction
         visible={isModalVisible}
         onClose={handleModalClose}
         type="expense"
+        transactionId={transactionId}
       />
     </View>
   );
@@ -36,4 +37,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default TransactionScreen;
+export default TransactionEditScreen;
