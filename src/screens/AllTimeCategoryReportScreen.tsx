@@ -27,8 +27,8 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
 
     useEffect(() => {
         if (session) {
-        fetchCategoryData();
-    }
+            fetchCategoryData();
+        }
     }, []);
 
     const fetchCategoryData = async () => {
@@ -52,17 +52,28 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
         legendFontSize: 12
     }));
 
-    const renderCategoryItem = (data: CategoryData) => (
-        <View key={data.category} style={styles.categoryItem}>
-            <View style={styles.categoryLeft}>
-                <MaterialIcons name={data.icon} size={24} color={data.color} />
-                <Text style={styles.categoryName}>{data.category}</Text>
+    const renderCategoryItem = (data: CategoryData) => {
+        // Safely handle percentage display
+        const formattedPercentage = data.percentage != null 
+            ? data.percentage.toFixed(2) 
+            : 'N/A';
+
+        return (
+            <View key={data.category} style={styles.categoryItem}>
+                <View style={styles.categoryLeft}>
+                    <MaterialIcons 
+                        name={data.icon || 'help-outline'} 
+                        size={24} 
+                        color={data.color || '#CCCCCC'} 
+                    />
+                    <Text style={styles.categoryName}>{data.category}</Text>
+                </View>
+                <View style={styles.categoryRight}>
+                    <Text style={styles.categoryPercentage}>{`${formattedPercentage}%`}</Text>
+                </View>
             </View>
-            <View style={styles.categoryRight}>
-                <Text style={styles.categoryPercentage}>{`${data.percentage.toFixed(2)}%`}</Text>
-            </View>
-        </View>
-    );
+        );
+    };
 
     return (
         <View style={styles.container}>
@@ -108,10 +119,16 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
                                 />
                             </View>
                         )}
-                        <View style={styles.section}>
-                            <Text style={styles.sectionTitle}>Category Details</Text>
-                            {categoryData.map(renderCategoryItem)}
-                        </View>
+                        {categoryData.length > 0 ? (
+                            <View style={styles.section}>
+                                <Text style={styles.sectionTitle}>Category Details</Text>
+                                {categoryData.map(renderCategoryItem)}
+                            </View>
+                        ) : (
+                            <View style={styles.errorContainer}>
+                                <Text style={styles.errorText}>No category data available</Text>
+                            </View>
+                        )}
                     </>
                 )}
             </ScrollView>
