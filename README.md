@@ -1,3 +1,10 @@
+https://gamma.app/docs/SpendWiseMobile-A-Comprehensive-Mobile-Financial-Management-Solut-95ynke0k9dieyi4
+
+
+
+
+
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
