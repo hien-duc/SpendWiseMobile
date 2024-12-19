@@ -74,22 +74,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   lottie: {
-    width: 100, // Adjust size as needed
-    height: 100,
+    width: 200, // Adjust size as needed
+    height: 200,
   },
-  illustrationCircle: {
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: '#ffffff',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
+  // illustrationCircle: {
+  //   width: 200,
+  //   height: 150,
+  //   borderRadius: 60,
+  //   backgroundColor: '#ffffff',
+  //   justifyContent: 'center',
+  //   alignItems: 'center',
+  //   shadowColor: '#000',
+  //   shadowOffset: { width: 0, height: 2 },
+  //   shadowOpacity: 0.25,
+  //   shadowRadius: 3.84,
+  //   elevation: 5,
+  // },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
