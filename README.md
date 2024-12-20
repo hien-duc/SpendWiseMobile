@@ -1,7 +1,47 @@
+# SpendWise Mobile App
+
+A comprehensive mobile application for managing personal finances and tracking expenses.
+
+## Release Information
+
+### Available APK Variants
+
+The app is available in four different APK variants optimized for different device architectures:
+
+1. `arm64-v8a` - For modern 64-bit ARM devices (Most modern Android phones)
+2. `armeabi-v7a` - For older 32-bit ARM devices
+3. `x86_64` - For 64-bit x86 devices (Some tablets and emulators)
+4. `x86` - For 32-bit x86 devices (Older tablets and emulators)
+
+### Installation Instructions
+
+1. Download the appropriate APK for your device architecture
+2. Enable "Install from Unknown Sources" in your device settings
+3. Open the downloaded APK file to install
+
+### Which APK should I download?
+
+- Most modern Android phones (2015 and newer) should use the `arm64-v8a` version
+- Older Android phones should use the `armeabi-v7a` version
+- If you're using an x86-based Android device or emulator, use the corresponding x86 version
+
+### Version Information
+
+Current Version: 1.0
+Release Date: 2024-12-20
+
+### Changelog
+
+#### Version 1.0
+- Initial release
+- Personal finance management features
+- Expense tracking
+- Financial goals setting
+- Budget management
+
+## Development Setup
+
 https://gamma.app/docs/SpendWiseMobile-A-Comprehensive-Mobile-Financial-Management-Solut-95ynke0k9dieyi4
-
-
-
 
 
 
@@ -69,7 +109,7 @@ You've successfully run and modified your React Native App. :partying_face:
 ### Now what?
 
 - If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
+- If you're curious to leaSpendWise Mobile v1.0 - Initial Releasern more about React Native, check out the [Introduction to React Native](https://reactnative.dev/docs/getting-started).
 
 # Troubleshooting
 
