@@ -14,9 +14,7 @@ import { Category } from '../api/types';
 const CategoryManagementScreen = ({ navigation, route }) => {
     const { initialType } = route.params || {};
     const [categories, setCategories] = useState<Category[]>([]);
-    const [activeTab, setActiveTab] = useState<'expense' | 'income'>(
-        initialType === 'income' ? 'income' : 'expense'
-    );
+    const [activeTab, setActiveTab] = useState<'expense' | 'income'>(initialType === 'income' ? 'income' : 'expense');
 
     useEffect(() => {
         loadCategories();
@@ -107,61 +105,78 @@ const CategoryManagementScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#F0F4F8',
+        backgroundColor: '#FFFFFF',
+        elevation: 4,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#2E3A59',
+        letterSpacing: 0.5,
     },
     tabContainer: {
         flexDirection: 'row',
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#F0F4F8',
+        backgroundColor: '#FFFFFF',
+        paddingTop: 8,
     },
     tab: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 16,
         alignItems: 'center',
+        marginHorizontal: 4,
     },
     activeTab: {
-        borderBottomWidth: 2,
-        borderBottomColor: '#FF5722',
+        borderBottomWidth: 3,
+        borderBottomColor: '#4CAF50',
     },
     tabText: {
-        fontSize: 16,
-        color: '#666',
+        fontSize: 18,
+        color: '#8F9BB3',
+        fontWeight: '500',
     },
     activeTabText: {
-        color: '#FF5722',
-        fontWeight: '600',
+        color: '#4CAF50',
+        fontWeight: '700',
     },
     categoryList: {
         flex: 1,
+        backgroundColor: '#FFFFFF',
+        paddingTop: 8,
     },
     categoryItem: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        padding: 20,
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#F0F4F8',
+        backgroundColor: '#FFFFFF',
     },
     categoryLeft: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 12,
+        gap: 16,
     },
     categoryName: {
-        fontSize: 16,
-        marginLeft: 12,
+        fontSize: 18,
+        color: '#2E3A59',
+        fontWeight: '500',
+        marginLeft: 16,
     },
 });
 

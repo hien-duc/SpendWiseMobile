@@ -102,14 +102,14 @@ export const FinancialGoalsScreen = () => {
 
     const renderGoalItem = ({ item }: { item: FinancialGoal }) => (
         <TouchableOpacity
-            style={styles.goalItem}
+            style={styles.goalCard}
             onPress={() => {
                 setSelectedGoal(item);
                 setShowOptions(true);
             }}
         >
             <View style={styles.goalHeader}>
-                <Text style={styles.goalName} numberOfLines={1} ellipsizeMode="tail">
+                <Text style={styles.goalTitle} numberOfLines={1} ellipsizeMode="tail">
                     {item.name}
                 </Text>
                 <Text style={styles.goalAmount}>${item.current_amount} / ${item.target_amount}</Text>
@@ -128,15 +128,21 @@ export const FinancialGoalsScreen = () => {
                         ]}
                     />
                 </View>
+                <Text style={styles.progressText}>
+                    {Math.min(
+                        (item.current_amount / item.target_amount) * 100,
+                        100
+                    ).toFixed(0)}%
+                </Text>
             </View>
             <View style={styles.goalDetails}>
-                <Text style={styles.goalInfo}>
-                    Deadline: {new Date(item.deadline).toLocaleDateString()}
-                </Text>
-                <View style={styles.statusContainer}>
-                    <Text style={styles.statusBadge}>
-                        {item.status.replace('_', ' ').toUpperCase()}
-                    </Text>
+                <View style={styles.detailItem}>
+                    <Text style={styles.detailLabel}>Deadline</Text>
+                    <Text style={styles.detailValue}>{new Date(item.deadline).toLocaleDateString()}</Text>
+                </View>
+                <View style={styles.detailItem}>
+                    <Text style={styles.detailLabel}>Status</Text>
+                    <Text style={styles.detailValue}>{item.status.replace('_', ' ').toUpperCase()}</Text>
                 </View>
             </View>
         </TouchableOpacity>
@@ -144,13 +150,14 @@ export const FinancialGoalsScreen = () => {
 
     if (!isAuthenticated) {
         return (
-            <View style={styles.container}>
-                <Text style={styles.errorText}>Please log in to view your goals</Text>
+            <View style={styles.emptyState}>
+                <MaterialIcons name="flag" size={64} color="#ccc" style={styles.emptyStateIcon} />
+                <Text style={styles.emptyStateText}>Please log in to view your goals</Text>
                 <TouchableOpacity
-                    style={styles.loginButton}
+                    style={styles.addButton}
                     onPress={() => navigation.navigate('Auth', { screen: 'Login' })}
                 >
-                    <Text style={styles.loginButtonText}>Go to Login</Text>
+                    <MaterialIcons name="login" size={24} color="#fff" />
                 </TouchableOpacity>
             </View>
         );
@@ -159,53 +166,41 @@ export const FinancialGoalsScreen = () => {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <TouchableOpacity
-                    style={styles.backButton}
-                    onPress={() => navigation.goBack()}
-                >
-                    <MaterialIcons name="arrow-back" size={24} color="#333" />
-                </TouchableOpacity>
                 <Text style={styles.headerTitle}>Financial Goals</Text>
+                <Text style={styles.headerSubtitle}>Track your progress and stay on top of your finances</Text>
             </View>
-
-            {loading ? (
-                <View style={styles.centerContainer}>
-                    <ActivityIndicator size="large" color="#00B152" />
-                </View>
-            ) : error ? (
-                <View style={styles.centerContainer}>
-                    <Text style={styles.errorText}>{error}</Text>
-                </View>
-            ) : goals.length === 0 ? (
-                <View style={styles.centerContainer}>
-                    <MaterialIcons name="flag" size={64} color="#ccc" />
-                    <Text style={styles.emptyText}>No financial goals yet</Text>
-                    <Text style={styles.emptySubText}>Tap the + button to create your first goal</Text>
-                </View>
-            ) : (
-                <FlatList
-                    data={goals}
-                    renderItem={renderGoalItem}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.listContent}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={refreshing}
-                            onRefresh={onRefresh}
-                            colors={['#00B152']}
-                        />
-                    }
-                />
-            )}
-
+            <View style={styles.content}>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#4CAF50" style={styles.centerContainer} />
+                ) : error ? (
+                    <Text style={styles.emptyStateText}>{error}</Text>
+                ) : goals.length === 0 ? (
+                    <View style={styles.emptyState}>
+                        <MaterialIcons name="flag" size={64} color="#ccc" style={styles.emptyStateIcon} />
+                        <Text style={styles.emptyStateText}>No financial goals yet</Text>
+                        <Text style={styles.emptyStateText}>Tap the + button to create your first goal</Text>
+                    </View>
+                ) : (
+                    <FlatList
+                        data={goals}
+                        renderItem={renderGoalItem}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.listContent}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={refreshing}
+                                onRefresh={onRefresh}
+                                colors={['#4CAF50']}
+                            />
+                        }
+                    />
+                )}
+            </View>
             <TouchableOpacity
                 style={styles.addButton}
                 onPress={handleAddGoal}
             >
-                <View style={styles.addButtonContent}>
-                    <MaterialIcons name="add" size={24} color="#FFF" />
-                    <Text style={styles.addButtonText}>Add New Goal</Text>
-                </View>
+                <MaterialIcons name="add" size={24} color="#fff" />
             </TouchableOpacity>
 
             <Modal
@@ -247,148 +242,133 @@ export const FinancialGoalsScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#FFFFFF',
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: '#ffffff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-        elevation: 2,
-    },
-    backButton: {
-        padding: 8,
-        marginRight: 16,
+        backgroundColor: '#4CAF50',
+        paddingTop: 48,
+        paddingBottom: 24,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
     },
     headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#333333',
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        marginBottom: 16,
+        letterSpacing: 0.5,
     },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    emptyText: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#666',
-        marginTop: 16,
-    },
-    emptySubText: {
-        fontSize: 14,
-        color: '#999',
-        marginTop: 8,
-        textAlign: 'center',
-    },
-    errorText: {
+    headerSubtitle: {
         fontSize: 16,
-        color: '#ff6b6b',
-        textAlign: 'center',
+        color: 'rgba(255, 255, 255, 0.9)',
+        lineHeight: 24,
     },
-    addButton: {
-        position: 'absolute',
-        bottom: 24,
-        right: 24,
-        backgroundColor: '#00B152',
-        borderRadius: 12,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    addButtonContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: 12,
+    content: {
+        flex: 1,
+        marginTop: -12,
         paddingHorizontal: 20,
     },
-    addButtonText: {
-        color: '#FFF',
-        fontSize: 16,
-        fontWeight: '600',
-        marginLeft: 8,
-    },
-    listContent: {
-        padding: 16,
-    },
-    goalItem: {
-        backgroundColor: '#fff',
-        borderRadius: 12,
-        padding: 16,
-        marginBottom: 12,
-        elevation: 2,
+    goalCard: {
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        padding: 20,
+        marginBottom: 16,
+        elevation: 4,
         shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 1,
-        },
-        shadowOpacity: 0.22,
-        shadowRadius: 2.22,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
     },
     goalHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 12,
+        marginBottom: 16,
     },
-    goalName: {
-        fontSize: 18,
+    goalTitle: {
+        fontSize: 20,
         fontWeight: '600',
-        color: '#333',
+        color: '#2E3A59',
+        flex: 1,
+        marginRight: 16,
     },
     goalAmount: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: '#00B152',
+        fontSize: 24,
+        fontWeight: '700',
+        color: '#4CAF50',
     },
     progressContainer: {
-        marginVertical: 8,
-        width: '100%',
+        marginBottom: 16,
     },
     progressBar: {
         height: 8,
-        backgroundColor: '#e0e0e0',
+        backgroundColor: '#F0F4F8',
         borderRadius: 4,
+        marginBottom: 8,
         overflow: 'hidden',
-        width: '100%',
     },
     progressFill: {
         height: '100%',
-        backgroundColor: '#00B152',
+        backgroundColor: '#4CAF50',
         borderRadius: 4,
+    },
+    progressText: {
+        fontSize: 14,
+        color: '#8F9BB3',
     },
     goalDetails: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        marginTop: 16,
+        paddingTop: 16,
+        borderTopWidth: 1,
+        borderTopColor: '#F0F4F8',
+    },
+    detailItem: {
         alignItems: 'center',
-        marginTop: 8,
     },
-    goalInfo: {
-        fontSize: 14,
-        color: '#666',
-        flex: 1,
-        marginRight: 8,
-    },
-    statusContainer: {
-        alignItems: 'flex-end',
-    },
-    statusBadge: {
+    detailLabel: {
         fontSize: 12,
-        fontWeight: '500',
-        color: '#00B152',
-        backgroundColor: '#e8f5e9',
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        borderRadius: 12,
+        color: '#8F9BB3',
+        marginBottom: 4,
+    },
+    detailValue: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#2E3A59',
+    },
+    addButton: {
+        position: 'absolute',
+        right: 20,
+        bottom: 20,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        backgroundColor: '#4CAF50',
+        justifyContent: 'center',
+        alignItems: 'center',
+        elevation: 6,
+        shadowColor: '#4CAF50',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.25,
+        shadowRadius: 8,
+    },
+    emptyState: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 32,
+    },
+    emptyStateIcon: {
+        marginBottom: 24,
+        opacity: 0.5,
+    },
+    emptyStateText: {
+        fontSize: 18,
+        color: '#8F9BB3',
+        textAlign: 'center',
+        lineHeight: 24,
     },
     modalOverlay: {
         flex: 1,

@@ -117,60 +117,48 @@ const AddGoalScreen = () => {
             <View style={styles.content}>
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Goal Name</Text>
-                    <View style={styles.inputWrapper}>
-                        <MaterialIcons name="flag" size={24} color="#00B152" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.input}
-                            value={name}
-                            onChangeText={setName}
-                            placeholder="Enter goal name"
-                            placeholderTextColor="#999"
-                        />
-                    </View>
+                    <TextInput
+                        style={styles.input}
+                        value={name}
+                        onChangeText={setName}
+                        placeholder="Enter goal name"
+                        placeholderTextColor="#999"
+                    />
                 </View>
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Target Amount</Text>
-                    <View style={styles.inputWrapper}>
-                        <MaterialIcons name="attach-money" size={24} color="#00B152" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.input}
-                            value={targetAmount}
-                            onChangeText={(text) => handleAmountChange(text, setTargetAmount)}
-                            placeholder="$0.00"
-                            keyboardType="numeric"
-                            placeholderTextColor="#999"
-                        />
-                    </View>
+                    <TextInput
+                        style={styles.input}
+                        value={targetAmount}
+                        onChangeText={(text) => handleAmountChange(text, setTargetAmount)}
+                        placeholder="$0.00"
+                        keyboardType="numeric"
+                        placeholderTextColor="#999"
+                    />
                 </View>
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Current Amount</Text>
-                    <View style={styles.inputWrapper}>
-                        <MaterialIcons name="account-balance-wallet" size={24} color="#00B152" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.input}
-                            value={currentAmount}
-                            onChangeText={(text) => handleAmountChange(text, setCurrentAmount)}
-                            placeholder="$0.00"
-                            keyboardType="numeric"
-                            placeholderTextColor="#999"
-                        />
-                    </View>
+                    <TextInput
+                        style={styles.input}
+                        value={currentAmount}
+                        onChangeText={(text) => handleAmountChange(text, setCurrentAmount)}
+                        placeholder="$0.00"
+                        keyboardType="numeric"
+                        placeholderTextColor="#999"
+                    />
                 </View>
 
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>Deadline</Text>
                     <TouchableOpacity
-                        style={styles.dateButton}
+                        style={styles.datePickerButton}
                         onPress={() => setShowDatePicker(true)}
                     >
-                        <View style={styles.dateButtonContent}>
-                            <MaterialIcons name="calendar-today" size={24} color="#00B152" style={styles.inputIcon} />
-                            <Text style={styles.dateButtonText}>
-                                {deadline.toLocaleDateString()}
-                            </Text>
-                        </View>
+                        <Text style={styles.dateText}>
+                            {deadline.toLocaleDateString()}
+                        </Text>
                         <MaterialIcons name="chevron-right" size={24} color="#666" />
                     </TouchableOpacity>
                 </View>
@@ -191,20 +179,14 @@ const AddGoalScreen = () => {
                 )}
 
                 <TouchableOpacity
-                    style={[
-                        styles.submitButton, 
-                        (loading || !name.trim() || !targetAmount || !currentAmount) && styles.disabledButton
-                    ]}
+                    style={[styles.submitButton, (loading || !name.trim() || !targetAmount || !currentAmount) && styles.disabledButton]}
                     onPress={handleSubmit}
                     disabled={loading || !name.trim() || !targetAmount || !currentAmount}
                 >
                     {loading ? (
                         <ActivityIndicator color="#fff" />
                     ) : (
-                        <View style={styles.submitButtonContent}>
-                            <MaterialIcons name="add-circle-outline" size={24} color="#fff" style={styles.submitButtonIcon} />
-                            <Text style={styles.submitButtonText}>Create Goal</Text>
-                        </View>
+                        <Text style={styles.submitText}>Create Goal</Text>
                     )}
                 </TouchableOpacity>
             </View>
@@ -215,126 +197,73 @@ const AddGoalScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        padding: 16,
-        backgroundColor: '#ffffff',
-        borderBottomWidth: 1,
-        borderBottomColor: '#e0e0e0',
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-    },
-    backButton: {
-        padding: 8,
-        marginRight: 16,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: '600',
-        color: '#333333',
+        backgroundColor: '#FFFFFF',
     },
     content: {
-        padding: 16,
+        flex: 1,
+        padding: 24,
     },
     inputContainer: {
-        marginBottom: 16,
+        marginBottom: 24,
     },
     label: {
         fontSize: 16,
-        color: '#333',
+        fontWeight: '600',
+        color: '#2E3A59',
         marginBottom: 8,
-        fontWeight: '500',
-    },
-    inputWrapper: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderWidth: 1,
-        borderColor: '#e0e0e0',
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        elevation: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 1,
-    },
-    inputIcon: {
-        marginRight: 12,
     },
     input: {
-        flex: 1,
-        height: 50,
+        height: 56,
+        backgroundColor: '#F7F9FC',
+        borderRadius: 16,
+        paddingHorizontal: 16,
         fontSize: 16,
-        color: '#333',
-    },
-    dateButton: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        backgroundColor: '#fff',
+        color: '#2E3A59',
         borderWidth: 1,
-        borderColor: '#e0e0e0',
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 12,
-        elevation: 1,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.05,
-        shadowRadius: 1,
+        borderColor: '#E4E9F2',
     },
-    dateButtonContent: {
+    datePickerButton: {
+        height: 56,
+        backgroundColor: '#F7F9FC',
+        borderRadius: 16,
+        paddingHorizontal: 16,
         flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'space-between',
+        borderWidth: 1,
+        borderColor: '#E4E9F2',
     },
-    dateButtonText: {
+    dateText: {
         fontSize: 16,
-        color: '#333',
-        marginLeft: 12,
+        color: '#2E3A59',
     },
     submitButton: {
-        backgroundColor: '#00B152',
-        borderRadius: 12,
-        paddingVertical: 12,
-        alignItems: 'center',
-        marginTop: 16,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
-    },
-    submitButtonContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
+        height: 56,
+        backgroundColor: '#4CAF50',
+        borderRadius: 16,
         justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 32,
+        shadowColor: '#4CAF50',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+        elevation: 4,
     },
-    submitButtonIcon: {
-        marginRight: 8,
-    },
-    disabledButton: {
-        opacity: 0.5,
-    },
-    submitButtonText: {
-        color: '#fff',
-        fontSize: 16,
+    submitText: {
+        fontSize: 18,
         fontWeight: '600',
+        color: '#FFFFFF',
+        letterSpacing: 0.5,
     },
     errorText: {
-        color: '#ff6b6b',
-        textAlign: 'center',
-        marginTop: 16,
+        fontSize: 14,
+        color: '#FF3D71',
+        marginTop: 4,
     },
     loginButton: {
-        backgroundColor: '#00B152',
-        borderRadius: 12,
+        backgroundColor: '#4CAF50',
+        borderRadius: 16,
         paddingVertical: 12,
         alignItems: 'center',
         marginHorizontal: 16,
