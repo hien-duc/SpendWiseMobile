@@ -174,13 +174,13 @@ function HomeScreen({navigation}): JSX.Element {
                   {dayCounter}
                 </Text>
                 {income > 0 && (
-                  <Text style={[styles.amount, styles.income]}>+{formatCurrency(income)}</Text>
+                  <Text numberOfLines={1} style={[styles.amount, styles.income]}>+{formatCurrency(income)}</Text>
                 )}
                 {expense > 0 && (
-                  <Text style={[styles.amount, styles.expense]}>-{formatCurrency(expense)}</Text>
+                  <Text numberOfLines={1} style={[styles.amount, styles.expense]}>-{formatCurrency(expense)}</Text>
                 )}
                 {investment > 0 && (
-                  <Text style={[styles.amount, styles.investment]}>
+                  <Text numberOfLines={1} style={[styles.amount, styles.investment]}>
                     {formatCurrency(investment)}
                   </Text>
                 )}
@@ -494,8 +494,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   calendarCell: {
-    width: 40,
-    height: 60,
+    width: 45,
+    height: 70,
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 4,
@@ -514,8 +514,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   amount: {
-    fontSize: 10,
+    fontSize: 9,
     marginBottom: 1,
+    width: '100%',
+    textAlign: 'center',
   },
   income: {
     color: '#4CAF50',
