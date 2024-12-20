@@ -111,7 +111,7 @@ const AllTimeReportScreen: React.FC<Props> = () => {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.centered]}>
+      <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#333" />
       </View>
     );
@@ -119,7 +119,7 @@ const AllTimeReportScreen: React.FC<Props> = () => {
 
   if (error) {
     return (
-      <View style={[styles.container, styles.centered]}>
+      <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
       </View>
     );
@@ -127,7 +127,7 @@ const AllTimeReportScreen: React.FC<Props> = () => {
 
   if (!balanceReport) {
     return (
-      <View style={[styles.container, styles.centered]}>
+      <View style={styles.errorContainer}>
         <Text style={styles.errorText}>No balance report data available</Text>
       </View>
     );
@@ -138,40 +138,47 @@ const AllTimeReportScreen: React.FC<Props> = () => {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <MaterialIcons name="arrow-back" size={24} color="#333" />
+          onPress={() => navigation.goBack()}
+        >
+          <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>All Time Report</Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.headerTitle}>All-Time Report</Text>
+        <Text style={styles.headerSubtitle}>
+          Get insights into your long-term financial journey
+        </Text>
       </View>
 
       <ScrollView style={styles.content}>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Lifetime Summary</Text>
-          <View style={styles.summaryCard}>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Total Income</Text>
-              <Text style={[styles.summaryValue, styles.incomeText]}>
-                {formatCurrency(balanceReport.income_amount)}
-              </Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Total Expenses</Text>
-              <Text style={[styles.summaryValue, styles.expenseText]}>
-                {formatCurrency(balanceReport.expense_amount)}
-              </Text>
-            </View>
-            <View style={styles.summaryItem}>
-              <Text style={styles.summaryLabel}>Net Worth</Text>
-              <Text style={[styles.summaryValue, styles.savingsText]}>
-                {formatCurrency(balanceReport.net_amount)}
-              </Text>
-            </View>
+        <View style={styles.summaryCard}>
+          <Text style={styles.cardTitle}>Lifetime Summary</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Total Income</Text>
+            <Text style={[styles.value, styles.positiveValue]}>
+              {formatCurrency(balanceReport.income_amount)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Total Expenses</Text>
+            <Text style={[styles.value, styles.negativeValue]}>
+              {formatCurrency(balanceReport.expense_amount)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Net Worth</Text>
+            <Text
+              style={[
+                styles.value,
+                balanceReport.net_amount >= 0
+                  ? styles.positiveValue
+                  : styles.negativeValue,
+              ]}>
+              {formatCurrency(balanceReport.net_amount)}
+            </Text>
           </View>
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Yearly Trends</Text>
+        <View style={styles.chartContainer}>
+          <Text style={styles.chartTitle}>Yearly Trends</Text>
           <LineChart
             data={chartData}
             width={Dimensions.get('window').width - 64}
@@ -191,45 +198,55 @@ const AllTimeReportScreen: React.FC<Props> = () => {
           />
         </View>
 
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Key Statistics</Text>
-          <View style={styles.statsGrid}>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Average Monthly Income</Text>
-              <Text style={styles.statValue}>
-                {formatCurrency(balanceReport.avg_monthly_income)}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Average Monthly Expenses</Text>
-              <Text style={styles.statValue}>
-                {formatCurrency(balanceReport.avg_monthly_expense)}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Highest Monthly Income</Text>
-              <Text style={styles.statValue}>
-                {formatCurrency(balanceReport.highest_income_monthly)}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Highest Monthly Expenses</Text>
-              <Text style={styles.statValue}>
-                {formatCurrency(balanceReport.highest_expense_monthly)}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Initial Balance</Text>
-              <Text style={[styles.statValue, balanceReport.initial_balance >= 0 ? styles.incomeText : styles.expenseText]}>
-                {formatCurrency(balanceReport.initial_balance)}
-              </Text>
-            </View>
-            <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Current Balance</Text>
-              <Text style={[styles.statValue, balanceReport.cumulative_balance >= 0 ? styles.incomeText : styles.expenseText]}>
-                {formatCurrency(balanceReport.cumulative_balance)}
-              </Text>
-            </View>
+        <View style={styles.summaryCard}>
+          <Text style={styles.cardTitle}>Key Statistics</Text>
+          <View style={styles.row}>
+            <Text style={styles.label}>Average Monthly Income</Text>
+            <Text style={styles.value}>
+              {formatCurrency(balanceReport.avg_monthly_income)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Average Monthly Expenses</Text>
+            <Text style={styles.value}>
+              {formatCurrency(balanceReport.avg_monthly_expense)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Highest Monthly Income</Text>
+            <Text style={styles.value}>
+              {formatCurrency(balanceReport.highest_income_monthly)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Highest Monthly Expenses</Text>
+            <Text style={styles.value}>
+              {formatCurrency(balanceReport.highest_expense_monthly)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Initial Balance</Text>
+            <Text
+              style={[
+                styles.value,
+                balanceReport.initial_balance >= 0
+                  ? styles.positiveValue
+                  : styles.negativeValue,
+              ]}>
+              {formatCurrency(balanceReport.initial_balance)}
+            </Text>
+          </View>
+          <View style={styles.row}>
+            <Text style={styles.label}>Current Balance</Text>
+            <Text
+              style={[
+                styles.value,
+                balanceReport.cumulative_balance >= 0
+                  ? styles.positiveValue
+                  : styles.negativeValue,
+              ]}>
+              {formatCurrency(balanceReport.cumulative_balance)}
+            </Text>
           </View>
         </View>
       </ScrollView>
@@ -240,118 +257,106 @@ const AllTimeReportScreen: React.FC<Props> = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F5F5F5',
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 16,
-    backgroundColor: '#FFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#E0E0E0',
+    backgroundColor: '#4CAF50',
+    paddingTop: 48,
+    paddingBottom: 24,
+    paddingHorizontal: 20,
+    borderBottomLeftRadius: 24,
+    borderBottomRightRadius: 24,
   },
   backButton: {
-    padding: 8,
+    marginTop: -25,
+    paddingBottom: 20,
+    color: 'white',
   },
   headerTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#333',
+    fontSize: 32,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 16,
+    letterSpacing: 0.5,
   },
-  placeholder: {
-    width: 40,
+  headerSubtitle: {
+    fontSize: 16,
+    color: 'rgba(255, 255, 255, 0.9)',
+    lineHeight: 24,
   },
   content: {
     flex: 1,
     padding: 16,
   },
-  section: {
-    backgroundColor: '#FFF',
-    borderRadius: 8,
-    padding: 16,
-    marginBottom: 16,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 16,
-  },
-  summaryCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
-  summaryItem: {
+  loadingContainer: {
     flex: 1,
-    alignItems: 'center',
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  summaryValue: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  incomeText: {
-    color: '#4CAF50',
-  },
-  expenseText: {
-    color: '#F44336',
-  },
-  savingsText: {
-    color: '#2196F3',
-  },
-  statsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-  },
-  statItem: {
-    width: '48%',
-    backgroundColor: '#F5F5F5',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 12,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginBottom: 4,
-  },
-  statValue: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-  },
-  chart: {
-    marginVertical: 8,
-    borderRadius: 8,
-  },
-  centered: {
     justifyContent: 'center',
     alignItems: 'center',
+    padding: 20,
   },
-  noDataText: {
-    textAlign: 'center',
-    color: '#666',
-    marginTop: 16,
+  errorContainer: {
+    padding: 20,
+    alignItems: 'center',
   },
   errorText: {
-    color: '#f44336',
-    fontSize: 16,
+    color: '#FF3B30',
     textAlign: 'center',
+    fontSize: 16,
+  },
+  summaryCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 16,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+  },
+  label: {
+    fontSize: 14,
+    color: '#666666',
+  },
+  value: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#333333',
+  },
+  positiveValue: {
+    color: '#34C759',
+  },
+  negativeValue: {
+    color: '#FF3B30',
+  },
+  chartContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginVertical: 8,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  chartTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#333333',
+    marginBottom: 12,
   },
 });
 

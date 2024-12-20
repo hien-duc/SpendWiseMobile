@@ -53,10 +53,12 @@ const AnnualReportScreen = () => {
                         style={styles.backButton}
                         onPress={() => navigation.goBack()}
                     >
-                        <MaterialIcons name="arrow-back" size={24} color="#333" />
+                        <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
                     </TouchableOpacity>
-                    <Text style={styles.headerTitle}>Annual Report {selectedYear}</Text>
-                    <View style={styles.placeholder} />
+                    <Text style={styles.headerTitle}>Annual Report</Text>
+                    <Text style={styles.headerSubtitle}>
+                        Review your financial performance for {selectedYear}
+                    </Text>
                 </Animated.View>
                 <Animated.View 
                     entering={FadeIn.delay(150).duration(300)}
@@ -85,10 +87,12 @@ const AnnualReportScreen = () => {
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="#333" />
+                    <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Annual Report {selectedYear}</Text>
-                <View style={styles.placeholder} />
+                <Text style={styles.headerTitle}>Annual Report</Text>
+                <Text style={styles.headerSubtitle}>
+                    Review your financial performance for {selectedYear}
+                </Text>
             </Animated.View>
             <Animated.View 
                 entering={FadeIn.delay(150).duration(300)}
@@ -189,7 +193,7 @@ const AnnualReportScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#FFFFFF',
     },
     loadingContainer: {
         flex: 1,
@@ -219,24 +223,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        backgroundColor: '#FFF',
-        borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        backgroundColor: '#4CAF50',
+        paddingTop: 48,
+        paddingBottom: 24,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
     },
     backButton: {
-        padding: 8,
+        marginTop: -25,
+        paddingBottom: 20,
+        color: 'white',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        marginBottom: 16,
+        letterSpacing: 0.5,
     },
-    placeholder: {
-        width: 40,
+    headerSubtitle: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.9)',
+        lineHeight: 24,
     },
     content: {
         flex: 1,

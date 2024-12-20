@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -10,9 +10,9 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { resetPassword } from '../../../supabase';
+import {resetPassword} from '../../../supabase';
 
-const ForgotPasswordScreen = ({ navigation }: any) => {
+const ForgotPasswordScreen = ({navigation}: any) => {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +23,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
     }
 
     setLoading(true);
-    const { error } = await resetPassword(email);
+    const {error} = await resetPassword(email);
     setLoading(false);
 
     if (error) {
@@ -32,7 +32,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
       Alert.alert(
         'Success',
         'Password reset instructions have been sent to your email. Please check your email and click on the reset link.',
-        [{ text: 'OK', onPress: () => navigation.navigate('Login') }]
+        [{text: 'OK', onPress: () => navigation.navigate('Login')}],
       );
     }
   };
@@ -42,21 +42,21 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
       <View style={styles.header}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
-          style={styles.backButton}
-        >
-          <Icon name="chevron-left" size={30} color="#333" />
+          style={styles.backButton}>
+          <Icon name="chevron-left" size={30} color="#334155" />
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
         <Text style={styles.title}>Reset{'\n'}Password</Text>
         <Text style={styles.subtitle}>
-          Enter your email address and we'll send you instructions to reset your password
+          Enter your email address and we'll send you instructions to reset your
+          password
         </Text>
 
         <View style={styles.form}>
           <View style={styles.inputContainer}>
-            <Icon name="email-outline" size={20} color="#666" />
+            <Icon name="email-outline" size={22} color="#64748B" />
             <TextInput
               style={styles.input}
               placeholder="Enter your email"
@@ -64,7 +64,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor="#999"
+              placeholderTextColor="#94A3B8"
               editable={!loading}
             />
           </View>
@@ -72,8 +72,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
           <TouchableOpacity
             style={[styles.button, loading && styles.buttonDisabled]}
             onPress={handleResetPassword}
-            disabled={loading}
-          >
+            disabled={loading}>
             {loading ? (
               <ActivityIndicator color="#fff" />
             ) : (
@@ -84,8 +83,7 @@ const ForgotPasswordScreen = ({ navigation }: any) => {
           <TouchableOpacity
             onPress={() => navigation.navigate('Login')}
             style={styles.backToLogin}
-            disabled={loading}
-          >
+            disabled={loading}>
             <Text style={styles.backToLoginText}>Back to Login</Text>
           </TouchableOpacity>
         </View>
@@ -101,84 +99,106 @@ const styles = StyleSheet.create({
   },
   header: {
     paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingTop: 12,
   },
   backButton: {
-    padding: 12,
-    marginLeft: -12,
-    borderRadius: 40,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F8FAFC',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   content: {
     flex: 1,
-    padding: 32,
-    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 32,
   },
   title: {
-    fontSize: 40,
-    fontWeight: '700',
-    color: '#2E3A59',
-    marginBottom: 20,
-    letterSpacing: 0.5,
+    fontSize: 36,
+    fontWeight: 'bold',
+    color: '#334155',
+    marginBottom: 12,
+    letterSpacing: 0.2,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#8F9BB3',
-    marginBottom: 60,
-    lineHeight: 28,
+    fontSize: 17,
+    color: '#64748B',
+    marginBottom: 40,
+    lineHeight: 24,
+    letterSpacing: 0.1,
   },
   form: {
     width: '100%',
+    gap: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F7F9FC',
-    borderRadius: 16,
     paddingHorizontal: 20,
-    marginBottom: 32,
-    height: 64,
+    height: 60,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
+    gap: 12,
     borderWidth: 1,
-    borderColor: '#E4E9F2',
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   input: {
     flex: 1,
-    marginLeft: 16,
-    fontSize: 18,
-    color: '#2E3A59',
+    fontSize: 16,
+    color: '#334155',
+    letterSpacing: 0.2,
   },
   button: {
-    height: 64,
+    height: 60,
     backgroundColor: '#4CAF50',
     borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#4CAF50',
+    marginTop: 20,
+    shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 6,
+      height: 3,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 12,
-    elevation: 6,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonDisabled: {
-    backgroundColor: '#A5D6A7',
+    opacity: 0.7,
   },
   buttonText: {
     color: '#FFFFFF',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '600',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
   },
   backToLogin: {
-    marginTop: 32,
+    marginTop: 24,
     alignItems: 'center',
   },
   backToLoginText: {
-    fontSize: 18,
+    fontSize: 16,
     color: '#4CAF50',
     fontWeight: '600',
+    letterSpacing: 0.2,
   },
 });
 

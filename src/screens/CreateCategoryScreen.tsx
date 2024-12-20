@@ -55,7 +55,7 @@ const CreateCategoryScreen = ({ navigation, route }) => {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()}>
-                    <MaterialCommunityIcons name="arrow-left" size={24} color="#000" />
+                    <MaterialCommunityIcons name="arrow-left" size={24} color="#334155" />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Create Category</Text>
                 <TouchableOpacity onPress={handleCreate}>
@@ -71,6 +71,7 @@ const CreateCategoryScreen = ({ navigation, route }) => {
                         value={name}
                         onChangeText={setName}
                         placeholder="Enter category name"
+                        placeholderTextColor="#94A3B8"
                     />
                 </View>
 
@@ -90,7 +91,7 @@ const CreateCategoryScreen = ({ navigation, route }) => {
                                     <MaterialCommunityIcons
                                         name={icon}
                                         size={24}
-                                        color={selectedIcon === icon ? '#fff' : '#000'}
+                                        color={selectedIcon === icon ? '#FFFFFF' : '#64748B'}
                                     />
                                 </TouchableOpacity>
                             ))}
@@ -124,79 +125,133 @@ const CreateCategoryScreen = ({ navigation, route }) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#fff',
+        backgroundColor: '#FFFFFF',
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        padding: 16,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        backgroundColor: '#FFFFFF',
         borderBottomWidth: 1,
-        borderBottomColor: '#eee',
+        borderBottomColor: '#F0F0F0',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 3,
     },
     headerTitle: {
         fontSize: 20,
         fontWeight: '600',
+        color: '#334155',
+        letterSpacing: 0.2,
     },
     saveButton: {
-        color: '#007AFF',
-        fontSize: 17,
+        color: '#4CAF50',
+        fontSize: 16,
         fontWeight: '600',
+        letterSpacing: 0.2,
     },
     content: {
         flex: 1,
-        padding: 16,
+        padding: 20,
     },
     inputContainer: {
-        marginBottom: 24,
+        marginBottom: 28,
     },
     label: {
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: '600',
-        marginBottom: 8,
+        marginBottom: 12,
+        color: '#64748B',
+        letterSpacing: 0.3,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        padding: 12,
+        borderColor: '#F0F0F0',
+        borderRadius: 12,
+        padding: 16,
         fontSize: 16,
+        color: '#334155',
+        backgroundColor: '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
     },
     section: {
-        marginBottom: 24,
+        marginBottom: 28,
     },
     iconGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: 16,
+        paddingVertical: 4,
     },
     iconButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        backgroundColor: '#f5f5f5',
+        width: 52,
+        height: 52,
+        borderRadius: 16,
+        backgroundColor: '#F8FAFC',
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
+        marginRight: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        elevation: 2,
+        borderWidth: 1,
+        borderColor: '#F0F0F0',
     },
     selectedIcon: {
-        backgroundColor: '#007AFF',
+        backgroundColor: '#4CAF50',
+        borderColor: '#4CAF50',
     },
     colorGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 12,
+        gap: 16,
+        paddingVertical: 4,
     },
     colorButton: {
-        width: 48,
-        height: 48,
-        borderRadius: 24,
-        marginRight: 12,
+        width: 52,
+        height: 52,
+        borderRadius: 16,
+        marginRight: 16,
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 2,
+        },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 2,
         borderWidth: 2,
         borderColor: 'transparent',
     },
     selectedColor: {
-        borderColor: '#000',
+        borderColor: '#FFFFFF',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 5,
+        elevation: 4,
     },
 });
 

@@ -52,7 +52,7 @@ const SignUpScreen = ({ navigation }: any) => {
           onPress={() => navigation.goBack()}
           style={styles.backButton}
         >
-          <Icon name="chevron-left" size={30} color="#333" />
+          <Icon name="chevron-left" size={30} color="#334155" />
         </TouchableOpacity>
       </View>
 
@@ -79,19 +79,19 @@ const SignUpScreen = ({ navigation }: any) => {
           entering={SlideInDown.duration(1000).delay(500)}
         >
           <View style={styles.inputContainer}>
-            <Icon name="account-outline" size={20} color="#666" />
+            <Icon name="account-outline" size={22} color="#64748B" />
             <TextInput
               style={styles.input}
               placeholder="Enter your name"
               value={name}
               onChangeText={setName}
-              placeholderTextColor="#999"
+              placeholderTextColor="#94A3B8"
               editable={!loading}
             />
           </View>
 
           <View style={styles.inputContainer}>
-            <Icon name="email-outline" size={20} color="#666" />
+            <Icon name="email-outline" size={22} color="#64748B" />
             <TextInput
               style={styles.input}
               placeholder="Enter your email"
@@ -99,20 +99,20 @@ const SignUpScreen = ({ navigation }: any) => {
               onChangeText={setEmail}
               keyboardType="email-address"
               autoCapitalize="none"
-              placeholderTextColor="#999"
+              placeholderTextColor="#94A3B8"
               editable={!loading}
             />
           </View>
 
           <View style={styles.inputContainer}>
-            <Icon name="lock-outline" size={20} color="#666" />
+            <Icon name="lock-outline" size={22} color="#64748B" />
             <TextInput
               style={styles.input}
               placeholder="Enter your password"
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              placeholderTextColor="#999"
+              placeholderTextColor="#94A3B8"
               editable={!loading}
             />
           </View>
@@ -152,85 +152,116 @@ const SignUpScreen = ({ navigation }: any) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#FFFFFF',
   },
   header: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
+    paddingHorizontal: 20,
+    paddingTop: 12,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f5f5f5',
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   content: {
     flex: 1,
     paddingHorizontal: 24,
-    paddingTop: 20,
+    paddingTop: 32,
   },
   title: {
-    fontSize: 32,
+    fontSize: 36,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#334155',
     marginBottom: 8,
+    letterSpacing: 0.2,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 32,
+    fontSize: 17,
+    color: '#64748B',
+    marginBottom: 40,
+    letterSpacing: 0.1,
   },
   form: {
-    gap: 16,
+    gap: 20,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 16,
-    height: 56,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 28,
+    paddingHorizontal: 20,
+    height: 60,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
     gap: 12,
+    borderWidth: 1,
+    borderColor: '#F1F5F9',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 3,
+    elevation: 2,
   },
   input: {
     flex: 1,
     fontSize: 16,
-    color: '#333',
+    color: '#334155',
+    letterSpacing: 0.2,
   },
   button: {
-    backgroundColor: '#00B152',
-    height: 56,
-    borderRadius: 28,
+    backgroundColor: '#4CAF50',
+    height: 60,
+    borderRadius: 16,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
   buttonText: {
-    color: '#ffffff',
+    color: '#FFFFFF',
     fontSize: 18,
     fontWeight: '600',
+    letterSpacing: 0.3,
   },
   loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 24,
   },
   loginText: {
     fontSize: 16,
-    color: '#666',
+    color: '#64748B',
+    letterSpacing: 0.2,
   },
   loginLink: {
     fontSize: 16,
-    color: '#00B152',
+    color: '#4CAF50',
     fontWeight: '600',
+    letterSpacing: 0.2,
   },
 });
-
 
 export default SignUpScreen;

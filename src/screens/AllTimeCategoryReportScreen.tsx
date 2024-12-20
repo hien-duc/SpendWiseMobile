@@ -82,10 +82,12 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="#333" />
+                    <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>All Time Category Report</Text>
-                <View style={styles.placeholder} />
+                <Text style={styles.headerTitle}>Category Report</Text>
+                <Text style={styles.headerSubtitle}>
+                    Analyze your spending patterns across all categories
+                </Text>
             </View>
 
             <ScrollView style={styles.content}>
@@ -98,7 +100,7 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
                         <Text style={styles.errorText}>{error}</Text>
                     </View>
                 ) : (
-                    <>
+                    <View>
                         {categoryData.length > 0 && (
                             <View style={styles.section}>
                                 <Text style={styles.sectionTitle}>Overall Category Distribution</Text>
@@ -129,7 +131,7 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
                                 <Text style={styles.errorText}>No category data available</Text>
                             </View>
                         )}
-                    </>
+                    </View>
                 )}
             </ScrollView>
         </View>
@@ -139,34 +141,87 @@ const AllTimeCategoryReportScreen: React.FC<Props> = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#FFFFFF',
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        backgroundColor: '#FFF',
-        borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        backgroundColor: '#4CAF50',
+        paddingTop: 48,
+        paddingBottom: 24,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
     },
     backButton: {
-        padding: 8,
+        marginTop: -25,
+        paddingBottom: 20,
+        color: 'white',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        marginBottom: 16,
+        letterSpacing: 0.5,
     },
-    placeholder: {
-        width: 40,
+    headerSubtitle: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.9)',
+        lineHeight: 24,
     },
     content: {
         flex: 1,
         padding: 16,
     },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    errorContainer: {
+        padding: 20,
+        alignItems: 'center',
+    },
+    errorText: {
+        color: '#FF3B30',
+        textAlign: 'center',
+        fontSize: 16,
+    },
+    categoryItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: '#FFFFFF',
+        padding: 16,
+        marginVertical: 6,
+        borderRadius: 12,
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.1,
+        shadowRadius: 2,
+    },
+    categoryLeft: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+    },
+    categoryName: {
+        marginLeft: 12,
+        fontSize: 16,
+        color: '#333333',
+        fontWeight: '500',
+    },
+    categoryRight: {
+        marginLeft: 8,
+    },
+    categoryPercentage: {
+        fontSize: 16,
+        color: '#007AFF',
+        fontWeight: '600',
+    },
     section: {
-        backgroundColor: '#FFF',
+        backgroundColor: '#FFFFFF',
         borderRadius: 8,
         padding: 16,
         marginBottom: 16,
@@ -184,44 +239,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         color: '#333',
         marginBottom: 16,
-    },
-    categoryItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingVertical: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
-    },
-    categoryLeft: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    categoryName: {
-        fontSize: 16,
-        color: '#333',
-        marginLeft: 12,
-    },
-    categoryRight: {
-        alignItems: 'flex-end',
-    },
-    categoryPercentage: {
-        fontSize: 16,
-        color: '#333',
-    },
-    loadingContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    errorContainer: {
-        padding: 20,
-        alignItems: 'center',
-    },
-    errorText: {
-        color: 'red',
-        textAlign: 'center',
     },
 });
 

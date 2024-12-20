@@ -285,7 +285,6 @@ const ReportScreen = () => {
       <View style={styles.summaryContainer}>
         <View style={[styles.summaryCard, {backgroundColor: '#E8F5E9'}]}>
           <Text style={styles.summaryLabel}>Income</Text>
-          {/* can use to toFixed(2) to display 0.00 */}
           <Text style={[styles.summaryAmount, {color: '#2E7D32'}]}>
             ${incomeTotal}
           </Text>
@@ -309,27 +308,43 @@ const ReportScreen = () => {
         <Text
           style={[
             styles.netBalanceAmount,
-            {color: netBalance >= 0 ? '#2E7D32' : '#C62828'},
+            {color: netBalance >= 0 ? '#4CAF50' : '#C62828'},
           ]}>
           ${netBalance ? netBalance : '0.00'}
         </Text>
       </View>
 
       <View style={styles.tabContainer}>
-        {(['expense', 'income', 'investment'] as const).map(tab => (
-          <TouchableOpacity
-            key={tab}
-            style={[styles.tab, activeTab === tab && styles.activeTab]}
-            onPress={() => setActiveTab(tab)}>
-            <Text
+        {(['income', 'expense', 'investment'] as const).map(tab => {
+          let activeColors = {
+            income: { bg: '#E8F5E9', text: '#2E7D32' },
+            expense: { bg: '#FFEBEE', text: '#C62828' },
+            investment: { bg: '#E3F2FD', text: '#1565C0' }
+          };
+          return (
+            <TouchableOpacity
+              key={tab}
               style={[
-                styles.tabText,
-                activeTab === tab && styles.activeTabText,
-              ]}>
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </Text>
-          </TouchableOpacity>
-        ))}
+                styles.tab,
+                activeTab === tab && [
+                  styles.activeTab,
+                  { backgroundColor: activeColors[tab].bg }
+                ]
+              ]}
+              onPress={() => setActiveTab(tab)}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === tab && [
+                    styles.activeTabText,
+                    { color: activeColors[tab].text }
+                  ]
+                ]}>
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
       </View>
 
       {loading ? (
@@ -347,130 +362,230 @@ const ReportScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#FFFFFF',
   },
   scrollViewContent: {
     paddingBottom: 72,
-    padding: 16,
+    padding: 24,
   },
   header: {
-    marginBottom: 0,
+    marginBottom: 20,
   },
   summaryContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 20,
   },
   summaryCard: {
     flex: 1,
-    padding: 12,
-    borderRadius: 8,
-    marginHorizontal: 4,
+    padding: 16,
+    borderRadius: 16,
+    marginHorizontal: 5,
+    backgroundColor: '#FFFFFF',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   summaryLabel: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: 6,
+    color: '#94A3B8',
+    letterSpacing: 0.3,
   },
   summaryAmount: {
-    fontSize: 14,
-    fontWeight: 'bold',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#334155',
+    letterSpacing: 0.2,
   },
   netBalanceContainer: {
-    backgroundColor: '#F5F5F5',
-    padding: 16,
-    borderRadius: 8,
-    marginBottom: 6,
+    backgroundColor: '#FFFFFF',
+    padding: 24,
+    borderRadius: 20,
+    marginBottom: 24,
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 3,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   netBalanceLabel: {
-    fontSize: 14,
+    fontSize: 15,
     fontWeight: '500',
-    marginBottom: 4,
+    marginBottom: 8,
+    color: '#94A3B8',
+    letterSpacing: 0.3,
   },
   netBalanceAmount: {
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#334155',
+    letterSpacing: 0.4,
   },
   tabContainer: {
     flexDirection: 'row',
-    marginBottom: 16,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 8,
+    marginBottom: 24,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 16,
     padding: 4,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   tab: {
     flex: 1,
-    paddingVertical: 8,
+    paddingVertical: 12,
     alignItems: 'center',
-    borderRadius: 6,
+    borderRadius: 14,
   },
   activeTab: {
-    backgroundColor: '#fff',
     elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.06,
+    shadowRadius: 3,
   },
   tabText: {
     fontSize: 14,
-    color: '#666',
+    color: '#94A3B8',
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
   activeTabText: {
-    color: '#6200ee',
-    fontWeight: '500',
+    fontWeight: '600',
   },
   chartContainer: {
     alignItems: 'center',
-    marginTop: 16,
+    marginTop: 20,
+    paddingVertical: 20,
   },
   legendContainer: {
     width: '100%',
-    marginTop: 24,
+    marginTop: 32,
   },
   legendItem: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
-    backgroundColor: '#F5F5F5',
-    padding: 8,
-    borderRadius: 8,
+    backgroundColor: '#FFFFFF',
+    padding: 16,
+    borderRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   legendIconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: '#F8FAFC',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: 16,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 2,
+    elevation: 1,
   },
   legendTextContainer: {
     flex: 1,
   },
   legendTitle: {
-    fontSize: 14,
-    fontWeight: '500',
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#334155',
+    letterSpacing: 0.2,
   },
   legendAmount: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 2,
+    fontSize: 13,
+    color: '#94A3B8',
+    marginTop: 4,
+    letterSpacing: 0.2,
   },
   noDataContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
+    padding: 40,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   noDataText: {
-    marginTop: 8,
-    color: '#666',
+    marginTop: 12,
+    color: '#94A3B8',
     textAlign: 'center',
+    fontSize: 15,
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
   loadingContainer: {
-    padding: 32,
+    padding: 40,
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    margin: 20,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.04,
+    shadowRadius: 3,
+    elevation: 1,
+    borderWidth: 1,
+    borderColor: '#F0F0F0',
   },
   loadingText: {
-    marginTop: 8,
-    color: '#666',
+    marginTop: 12,
+    color: '#94A3B8',
+    fontSize: 15,
+    fontWeight: '500',
+    letterSpacing: 0.2,
   },
 });
 

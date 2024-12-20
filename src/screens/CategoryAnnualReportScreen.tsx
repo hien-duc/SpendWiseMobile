@@ -121,12 +121,7 @@ const CategoryAnnualReportScreen: React.FC = () => {
                             const x2 = Math.cos((currentAngle + angle - 90) * Math.PI / 180) * RADIUS;
                             const y2 = Math.sin((currentAngle + angle - 90) * Math.PI / 180) * RADIUS;
 
-                            const path = `
-                                M 0 0
-                                L ${x1} ${y1}
-                                A ${RADIUS} ${RADIUS} 0 ${angle > 180 ? 1 : 0} 1 ${x2} ${y2}
-                                Z
-                            `;
+                            const path = `M 0 0 L ${x1} ${y1} A ${RADIUS} ${RADIUS} 0 ${angle > 180 ? 1 : 0} 1 ${x2} ${y2} Z`;
 
                             currentAngle += angle;
                             return (
@@ -176,10 +171,12 @@ const CategoryAnnualReportScreen: React.FC = () => {
                     style={styles.backButton}
                     onPress={() => navigation.goBack()}
                 >
-                    <MaterialIcons name="arrow-back" size={24} color="#333" />
+                    <MaterialIcons name="arrow-back" size={24} color="#FFFFFF" />
                 </TouchableOpacity>
-                <Text style={styles.headerTitle}>Annual Report</Text>
-                <View style={styles.placeholder} />
+                <Text style={styles.headerTitle}>Annual Categories</Text>
+                <Text style={styles.headerSubtitle}>
+                    Track your yearly spending across categories
+                </Text>
             </View>
 
             <View style={styles.yearSelector}>
@@ -237,27 +234,32 @@ const CategoryAnnualReportScreen: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F5F5F5',
+        backgroundColor: '#FFFFFF',
     },
     header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: 16,
-        backgroundColor: '#FFF',
-        borderBottomWidth: 1,
-        borderBottomColor: '#E0E0E0',
+        backgroundColor: '#4CAF50',
+        paddingTop: 48,
+        paddingBottom: 24,
+        paddingHorizontal: 20,
+        borderBottomLeftRadius: 24,
+        borderBottomRightRadius: 24,
     },
     backButton: {
-        padding: 8,
+        marginTop: -25,
+        paddingBottom: 20,
+        color: 'white',
     },
     headerTitle: {
-        fontSize: 18,
-        fontWeight: '600',
-        color: '#333',
+        fontSize: 32,
+        fontWeight: '700',
+        color: '#FFFFFF',
+        marginBottom: 16,
+        letterSpacing: 0.5,
     },
-    placeholder: {
-        width: 40,
+    headerSubtitle: {
+        fontSize: 16,
+        color: 'rgba(255, 255, 255, 0.9)',
+        lineHeight: 24,
     },
     yearSelector: {
         flexDirection: 'row',
