@@ -10,6 +10,11 @@ import {
   TouchableOpacity,
   Platform,
 } from 'react-native';
+import Animated, {
+  FadeInDown,
+  Layout,
+  ZoomIn,
+} from 'react-native-reanimated';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {transactionsService} from '../api/transactionsService';
@@ -22,8 +27,24 @@ function HomeScreen({navigation}): JSX.Element {
   const {isAuthenticated: authIsAuthenticated} = useAuth();
   const [refreshing, setRefreshing] = useState(false);
 
+  const abbreviateNumber = (num: number): string => {
+    const absNum = Math.abs(num);
+    if (absNum >= 1000000000) {
+      return (absNum / 1000000000).toFixed(1) + 'B';
+    } else if (absNum >= 1000000) {
+      return (absNum / 1000000).toFixed(1) + 'M';
+    } else if (absNum >= 1000) {
+      return (absNum / 1000).toFixed(1) + 'K';
+    }
+    return absNum.toFixed(2);
+  };
+
   const formatCurrency = (amount: number) => {
-    return `$${Math.abs(amount).toLocaleString(undefined, {
+    const absAmount = Math.abs(amount);
+    if (absAmount >= 1000) {
+      return `$${amount < 0 ? '-' : ''}${abbreviateNumber(absAmount)}`;
+    }
+    return `$${amount.toLocaleString(undefined, {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })}`;
@@ -153,16 +174,14 @@ function HomeScreen({navigation}): JSX.Element {
                   {dayCounter}
                 </Text>
                 {income > 0 && (
-                  <Text style={[styles.amount, styles.income]}>+{income}</Text>
+                  <Text numberOfLines={1} style={[styles.amount, styles.income]}>+{formatCurrency(income)}</Text>
                 )}
                 {expense > 0 && (
-                  <Text style={[styles.amount, styles.expense]}>
-                    -{expense}
-                  </Text>
+                  <Text numberOfLines={1} style={[styles.amount, styles.expense]}>-{formatCurrency(expense)}</Text>
                 )}
                 {investment > 0 && (
-                  <Text style={[styles.amount, styles.investment]}>
-                    {investment}
+                  <Text numberOfLines={1} style={[styles.amount, styles.investment]}>
+                    {formatCurrency(investment)}
                   </Text>
                 )}
               </TouchableOpacity>,
@@ -236,20 +255,28 @@ function HomeScreen({navigation}): JSX.Element {
 
     return (
       <View style={styles.summary}>
-        <View style={styles.summaryItem}>
+        <Animated.View 
+          style={styles.summaryItem}
+          entering={ZoomIn.duration(500)}>
           <Text style={styles.summaryLabel}>Income</Text>
           <Text style={[styles.summaryAmount, styles.income]}>+{formatCurrency(income)}</Text>
-        </View>
-        <View style={styles.summaryItem}>
+        </Animated.View>
+        
+        <Animated.View 
+          style={styles.summaryItem}
+          entering={ZoomIn.duration(500).delay(100)}>
           <Text style={styles.summaryLabel}>Expense</Text>
           <Text style={[styles.summaryAmount, styles.expense]}>-{formatCurrency(expense)}</Text>
-        </View>
-        <View style={styles.summaryItem}>
+        </Animated.View>
+        
+        <Animated.View 
+          style={styles.summaryItem}
+          entering={ZoomIn.duration(500).delay(200)}>
           <Text style={styles.summaryLabel}>Investment</Text>
           <Text style={[styles.summaryAmount, styles.investment]}>
             {formatCurrency(investment)}
           </Text>
-        </View>
+        </Animated.View>
         <View style={styles.summaryItem}>
           <Text style={styles.summaryLabel}>Remaining</Text>
           <Text
@@ -293,6 +320,67 @@ function HomeScreen({navigation}): JSX.Element {
       selectedDate.getMonth() + 1,
     ).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
 
+    const renderTransaction = useCallback(
+      (transaction, index) => (
+        <Animated.View
+          key={transaction.id}
+          entering={FadeInDown.duration(400).delay(index * 50)}
+          layout={Layout.springify()}>
+          <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('TransactionEditScreen', {
+                      transactionId: transaction.id,
+                    });
+                  }}
+                  style={styles.transaction}>
+            <View style={styles.transactionLeft}>
+              <View style={styles.categoryContainer}>
+                <View
+                  style={[
+                    styles.iconContainer,
+                    {backgroundColor: transaction.categories.color},
+                  ]}>
+                  <MaterialIcons
+                    name={transaction.categories.icon}
+                    size={20}
+                    color="white"
+                  />
+                </View>
+                <View style={styles.categoryTextContainer}>
+                  <Text style={styles.transactionCategory}>
+                    {transaction.categories.name}
+                  </Text>
+                  <Text style={styles.transactionNote}>
+                    {transaction.note}
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <Text
+              style={[
+                styles.transactionAmount,
+                {
+                  color:
+                    transaction.type === 'income'
+                      ? '#4CAF50'
+                      : transaction.type === 'expense'
+                      ? '#FF5252'
+                      : '#607D8B',
+                },
+              ]}>
+              {transaction.type === 'income'
+                ? '+'
+                : transaction.type === 'expense'
+                ? '-'
+                : ''}
+              {formatCurrency(transaction.amount)}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      ),
+      [],
+    );
+    
     return (
       <View style={styles.transactionList}>
         {Object.entries(groupedTransactions).map(([date, dayTransactions]) => (
@@ -311,60 +399,7 @@ function HomeScreen({navigation}): JSX.Element {
               }
             }}>
             <Text style={styles.dateHeader}>{date}</Text>
-            {dayTransactions.map(transaction => (
-              <View key={transaction.id}>
-                <TouchableOpacity
-                  onPress={() => {
-                    navigation.navigate('TransactionEditScreen', {
-                      transactionId: transaction.id,
-                    });
-                  }}
-                  style={styles.transaction}>
-                  <View style={styles.transactionLeft}>
-                    <View style={styles.categoryContainer}>
-                      <View
-                        style={[
-                          styles.iconContainer,
-                          {backgroundColor: transaction.categories.color},
-                        ]}>
-                        <MaterialIcons
-                          name={transaction.categories.icon}
-                          size={20}
-                          color="white"
-                        />
-                      </View>
-                      <View style={styles.categoryTextContainer}>
-                        <Text style={styles.transactionCategory}>
-                          {transaction.categories.name}
-                        </Text>
-                        <Text style={styles.transactionNote}>
-                          {transaction.note}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-                  <Text
-                    style={[
-                      styles.transactionAmount,
-                      {
-                        color:
-                          transaction.type === 'income'
-                            ? '#4CAF50'
-                            : transaction.type === 'expense'
-                            ? '#FF5252'
-                            : '#607D8B',
-                      },
-                    ]}>
-                    {transaction.type === 'income'
-                      ? '+'
-                      : transaction.type === 'expense'
-                      ? '-'
-                      : ''}
-                    {formatCurrency(transaction.amount)}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ))}
+            {dayTransactions.map((transaction, index) => renderTransaction(transaction, index))}
           </View>
         ))}
       </View>
@@ -387,13 +422,25 @@ function HomeScreen({navigation}): JSX.Element {
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView style={styles.scrollView} ref={scrollViewRef}>
-        <CalendarTable
-          selectedDate={selectedDate}
-          onDateSelect={handleDateSelect}
-          onMonthChange={handleMonthChange}
-        />
-        <MonthSummary selectedDate={selectedDate} />
-        <TransactionList selectedDate={selectedDate} listRef={scrollViewRef} />
+        <Animated.View entering={FadeInDown.duration(500)} layout={Layout.springify()}>
+          <CalendarTable
+            selectedDate={selectedDate}
+            onDateSelect={handleDateSelect}
+            onMonthChange={handleMonthChange}
+          />
+        </Animated.View>
+        
+        <Animated.View 
+          entering={FadeInDown.duration(500).delay(100)}
+          layout={Layout.springify()}>
+          <MonthSummary selectedDate={selectedDate} />
+        </Animated.View>
+
+        <Animated.View 
+          entering={FadeInDown.duration(500).delay(200)}
+          layout={Layout.springify()}>
+          <TransactionList selectedDate={selectedDate} listRef={scrollViewRef} />
+        </Animated.View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -447,8 +494,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   calendarCell: {
-    width: 40,
-    height: 60,
+    width: 45,
+    height: 70,
     justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 4,
@@ -467,8 +514,10 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   amount: {
-    fontSize: 10,
+    fontSize: 9,
     marginBottom: 1,
+    width: '100%',
+    textAlign: 'center',
   },
   income: {
     color: '#4CAF50',
@@ -508,6 +557,7 @@ const styles = StyleSheet.create({
   transactionList: {
     margin: 16,
     marginTop: 0,
+    paddingBottom: 100,
   },
   transactionGroup: {
     backgroundColor: 'white',

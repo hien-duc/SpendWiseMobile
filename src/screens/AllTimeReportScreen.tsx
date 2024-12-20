@@ -24,6 +24,8 @@ interface AllTimeBalanceReport {
   avg_monthly_expense: number;
   highest_income_monthly: number;
   highest_expense_monthly: number;
+  initial_balance: number;
+  cumulative_balance: number;
 }
 
 interface YearlyData {
@@ -205,15 +207,27 @@ const AllTimeReportScreen: React.FC<Props> = () => {
               </Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Highest Income Month</Text>
+              <Text style={styles.statLabel}>Highest Monthly Income</Text>
               <Text style={styles.statValue}>
                 {formatCurrency(balanceReport.highest_income_monthly)}
               </Text>
             </View>
             <View style={styles.statItem}>
-              <Text style={styles.statLabel}>Highest Expense Month</Text>
+              <Text style={styles.statLabel}>Highest Monthly Expenses</Text>
               <Text style={styles.statValue}>
                 {formatCurrency(balanceReport.highest_expense_monthly)}
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Initial Balance</Text>
+              <Text style={[styles.statValue, balanceReport.initial_balance >= 0 ? styles.incomeText : styles.expenseText]}>
+                {formatCurrency(balanceReport.initial_balance)}
+              </Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statLabel}>Current Balance</Text>
+              <Text style={[styles.statValue, balanceReport.cumulative_balance >= 0 ? styles.incomeText : styles.expenseText]}>
+                {formatCurrency(balanceReport.cumulative_balance)}
               </Text>
             </View>
           </View>
